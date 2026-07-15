@@ -24,13 +24,30 @@ body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 h1,h2,h3{margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
 
-header{position:sticky; top:0; z-index:30; background:linear-gradient(150deg,var(--or1),var(--or2)); color:#fff;
-  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;}
+header{position:sticky; top:0; z-index:30; background:#fff; border-bottom:1px solid var(--line); color:var(--ink);
+  padding:calc(10px + env(safe-area-inset-top)) 16px 12px;}
+.topbar{display:flex;align-items:center;gap:10px}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#B0A69D}
+.eyebrow b{color:var(--or2);font-weight:700}
+.titlerow{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
+.titlerow h1{font-size:27px;font-weight:800;letter-spacing:-.5px}
+.titlerow .count{font-size:12px;color:var(--ink-2);font-weight:600;padding-bottom:5px}
+.searchwrap{padding:12px 14px 2px}
+.searchwrap input{width:100%;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink)}
+.searchwrap input::placeholder{color:#B0A69D}
+.pills{display:flex;gap:7px;overflow-x:auto;padding:10px 14px 2px;scrollbar-width:none}
+.pills::-webkit-scrollbar{display:none}
+.pill{white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--ink-2);padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:700;flex:0 0 auto}
+.pill.on{background:#FDEBE0;color:var(--or2);border-color:#F7CBB0}
+.tile{width:56px;height:56px;flex:0 0 56px;border-radius:14px;display:grid;place-items:center;font-weight:800;font-size:20px;color:#C7521A;overflow:hidden}
+.tile img{width:100%;height:100%;object-fit:cover}
+.card .nom{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
 .brand{display:flex;align-items:center;gap:10px}
 .brand h1{font-size:19px;font-weight:700;letter-spacing:.2px}
 .brand .v{margin-left:auto;font-size:11px;opacity:.75}
-.mark{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-weight:800;color:#fff;font-size:16px}
-.gear{margin-left:auto;background:rgba(255,255,255,.16);border:none;color:#fff;width:36px;height:36px;border-radius:10px;font-size:16px}
+.mark{width:32px;height:32px;border-radius:10px;background:linear-gradient(150deg,var(--or1),var(--or2));display:grid;place-items:center;font-weight:800;color:#fff;font-size:17px;box-shadow:0 3px 8px rgba(229,86,26,.35)}
+.gear{margin-left:auto;background:var(--paper);border:1px solid var(--line);color:var(--ink-2);width:36px;height:36px;border-radius:11px;font-size:16px}
 .sub{font-size:12px;opacity:.8;margin-top:2px}
 .searchrow{display:flex;gap:8px;margin-top:10px}
 .searchrow input{flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);
@@ -46,8 +63,9 @@ header{position:sticky; top:0; z-index:30; background:linear-gradient(150deg,var
 .tools select{flex:1;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}
 
 main{padding:12px 14px}
-.card{display:flex;gap:11px;background:var(--card);border:1px solid var(--line);
-  border-radius:var(--r); padding:10px; margin-bottom:10px; position:relative; overflow:hidden;}
+.card.in{animation:cardin .32s ease both}
+.card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:18px; padding:12px; margin-bottom:11px; position:relative;}
 .card .strip{position:absolute;left:0;top:0;bottom:0;width:4px}
 .thumb{width:64px;height:64px;flex:0 0 64px;border-radius:10px;object-fit:cover;background:#E9EEEC;
   display:grid;place-items:center;color:var(--ink-2);font-size:22px}
@@ -62,7 +80,12 @@ main{padding:12px 14px}
 .tag.rx{background:#DFF0E9;color:#06553C;font-weight:700}
 .rxbtn{flex:0 0 auto;align-self:center;background:linear-gradient(150deg,var(--or1),var(--or2));color:#fff;border:none;border-radius:14px;box-shadow:0 4px 10px rgba(229,86,26,.3);
   width:46px;height:46px;font-size:15px;font-weight:800;line-height:1.1;box-shadow:0 2px 6px rgba(14,124,90,.25)}
-.rxbtn:active{transform:scale(.93)}
+.rxbtn:active{transform:scale(.88)}
+.btn,.chip,.mini,.rxbig,.call{transition:transform .12s ease}
+.btn:active,.mini:active,.rxbig:active,.call:active{transform:scale(.98)}
+.chip:active{transform:scale(.94)}
+.card{transition:transform .12s ease,box-shadow .12s ease}
+.card:active{transform:scale(.99)}
 .rxbig{width:100%;background:var(--ok);color:#fff;border:none;border-radius:12px;padding:15px;font-weight:800;font-size:16px;margin-top:12px}
 .rxlast{text-align:center;font-size:12.5px;color:var(--ink-2);margin-top:7px}
 .chk{display:flex;gap:6px;flex:0 0 auto}
@@ -91,10 +114,11 @@ nav button{background:none;border:none;padding:9px 0 10px;color:var(--ink-2);fon
 nav button .i{font-size:18px;line-height:1}
 nav button.on{color:var(--teal);font-weight:700}
 nav button.navfab{position:relative}
-nav .fbx{position:absolute;left:50%;top:-18px;transform:translateX(-50%);width:56px;height:56px;border-radius:18px;background:linear-gradient(150deg,var(--or1),var(--or2));color:#fff;font-size:30px;display:grid;place-items:center;box-shadow:0 8px 18px rgba(229,86,26,.42);border:4px solid #fff}
+nav .fbx{position:absolute;left:50%;top:-18px;transform:translateX(-50%);width:56px;height:56px;border-radius:18px;background:linear-gradient(150deg,var(--or1),var(--or2));color:#fff;font-size:30px;display:grid;place-items:center;box-shadow:0 8px 18px rgba(229,86,26,.42);border:4px solid #fff;animation:fabpulse 2.8s ease-in-out infinite}
+nav button:active .fbx{transform:translateX(-50%) scale(.92)}
 
 .sheet{position:fixed;inset:0;z-index:60;background:var(--paper);overflow-y:auto;display:none;padding:0 0 40px}
-.sheet.open{display:block}
+.sheet.open{display:block;animation:sheetin .3s cubic-bezier(.2,.7,.2,1)}
 .sheethead{position:sticky;top:0;background:var(--teal);color:#fff;display:flex;align-items:center;gap:8px;
   padding:calc(12px + env(safe-area-inset-top)) 14px 12px;z-index:5}
 .sheethead h2{font-size:17px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -118,7 +142,7 @@ textarea{min-height:66px;resize:vertical}
 
 .starpick{display:flex;gap:4px;margin-top:4px}
 .starpick button{background:none;border:none;font-size:30px;color:#D5DBD9;padding:0 2px}
-.starpick button.on{color:var(--gold)}
+.starpick button.on{color:var(--gold);animation:starpop .3s ease}
 
 .subcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 10px 12px;margin-bottom:8px;position:relative}
 .subcard .del{position:absolute;top:4px;right:4px;background:none;border:none;color:var(--danger);font-size:20px;font-weight:700;padding:2px 8px}
@@ -173,25 +197,49 @@ td.n{font-weight:700}
 .bar{margin-bottom:9px}
 .bar .t{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px}
 .bar .g{height:7px;background:#EDF2F0;border-radius:99px;overflow:hidden}
-.bar .g i{display:block;height:100%;background:var(--teal-2)}
+.bar .g i{display:block;height:100%;background:var(--teal-2);transform-origin:left;animation:grow .6s cubic-bezier(.2,.7,.2,1)}
 .bars.gift .bar .g i{background:var(--gift)}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));
   background:var(--ink);color:#fff;padding:10px 16px;border-radius:99px;font-size:13px;z-index:80;
   opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
+.modalbg{position:fixed;inset:0;z-index:120;background:rgba(30,26,23,.5);display:none;align-items:center;justify-content:center;padding:26px}
+.modalbg.open{display:flex;animation:fadein .2s ease}
+.modal{background:#fff;border-radius:22px;padding:22px 20px;width:100%;max-width:320px;text-align:center;animation:pop .28s cubic-bezier(.2,.8,.2,1)}
+.modal .ic{width:54px;height:54px;border-radius:16px;background:#FCE9E7;display:grid;place-items:center;margin:0 auto 12px}
+.modal h3{font-size:18px;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--ink-2);line-height:1.5;margin:0 0 18px}
+.modal .danger{width:100%;background:var(--danger);color:#fff;border:none;border-radius:13px;padding:14px;font-weight:700;font-size:15px;margin-bottom:9px}
+.modal .cancel{width:100%;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:13px;padding:13px;font-weight:700;font-size:14px}
 .viewer{position:fixed;inset:0;background:#000;z-index:90;display:none;place-items:center}
 .viewer.open{display:grid}
 .viewer img{max-width:100%;max-height:100%}
 #splash{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,#F98037,#E5561A 60%,#C7481A);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .5s ease}
 #splash.hide{opacity:0;pointer-events:none}
-.sp-logo{width:104px;height:104px;border-radius:30px;background:rgba(255,255,255,.15);display:grid;place-items:center;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:pop .6s cubic-bezier(.2,.8,.2,1)}
-.sp-rx{color:#fff;font-weight:800;font-size:56px;line-height:1}
-.sp-star{position:absolute;bottom:16px;left:18px;color:#FFD9A0;font-size:20px}
-.sp-name{color:#fff;font-weight:800;font-size:26px;letter-spacing:.5px}
-.sp-by{color:#fff;font-weight:700;font-size:12px;letter-spacing:2px;opacity:.9;margin-top:-6px}
-.sp-tag{color:rgba(255,255,255,.8);font-size:12.5px}
+.sp-logo{width:104px;height:104px;border-radius:30px;background:rgba(255,255,255,.15);display:grid;place-items:center;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:pop .6s cubic-bezier(.2,.8,.2,1),float 3s ease-in-out .6s infinite}
+.sp-logo::before{content:"";position:absolute;inset:0;border-radius:30px;border:2px solid rgba(255,255,255,.6);animation:ring 2s ease-out .5s infinite}
+.sp-rx{color:#fff;font-weight:800;font-size:56px;line-height:1;display:inline-block;animation:rxpop .7s cubic-bezier(.2,.8,.2,1) .25s both}
+.sp-star{position:absolute;bottom:16px;left:18px;color:#FFD9A0;font-size:20px;animation:twinkle 1.6s ease-in-out .9s infinite}
+.sp-name{color:#fff;font-weight:800;font-size:26px;letter-spacing:.5px;animation:rise .5s ease .55s both}
+.sp-by{color:#fff;font-weight:700;font-size:12px;letter-spacing:2px;opacity:.9;margin-top:-6px;animation:rise .5s ease .7s both}
+.sp-tag{color:rgba(255,255,255,.8);font-size:12.5px;animation:rise .5s ease .85s both}
 @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ring{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+@keyframes twinkle{0%,100%{opacity:.4;transform:scale(.8) rotate(-8deg)}50%{opacity:1;transform:scale(1.2) rotate(8deg)}}
+@keyframes rxpop{0%{transform:scale(.3) rotate(-12deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fabpulse{0%,100%{box-shadow:0 8px 18px rgba(229,86,26,.42)}50%{box-shadow:0 10px 28px rgba(229,86,26,.75)}}
+@keyframes plus1{0%{opacity:0;transform:translate(-50%,0) scale(.5)}18%{opacity:1;transform:translate(-50%,-6px) scale(1.1)}100%{opacity:0;transform:translate(-50%,-52px) scale(1)}}
+@keyframes sheetin{from{transform:translateY(30px);opacity:.4}to{transform:translateY(0);opacity:1}}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes starpop{0%{transform:scale(.5)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+.plus1{position:fixed;transform:translate(-50%,0);color:var(--or2);font-weight:800;font-size:22px;z-index:210;pointer-events:none;text-shadow:0 2px 6px rgba(0,0,0,.15);animation:plus1 .8s ease-out forwards}
+#main.swap{animation:fadein .28s ease}
+.card{will-change:transform,opacity}
 .tstep{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:11px}
 .tstep .n{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:#FDEBE0;color:var(--or2);display:grid;place-items:center;font-weight:800;font-size:16px}
 .tstep b{display:block;font-size:14.5px;margin-bottom:2px}
@@ -207,34 +255,18 @@ td.n{font-weight:700}
 </div>
 
 <header>
-  <div class="brand">
+  <div class="topbar">
     <div class="mark">℞</div>
-    <div><h1>VisiteMed</h1><div class="sub">by THE SHIELD</div></div>
+    <div class="eyebrow">VisiteMed <b>by THE SHIELD</b></div>
     <button class="gear" id="gearBtn" aria-label="Données et réglages">☰</button>
   </div>
-  <div class="searchrow" id="searchrow">
-    <input id="q" type="text" placeholder="Produit, DCI, labo, délégué, pharmacie…">
-  </div>
+  <div class="titlerow"><h1 id="pageTitle">Produits</h1><span class="count" id="pageCount"></span></div>
 </header>
 
 <div id="filters">
+  <div class="searchwrap"><input id="q" type="text" placeholder="Produit, DCI, labo, pharmacie…"></div>
+  <div class="pills" id="sortPills"></div>
   <div class="chips" id="chipClasses"></div>
-  <div class="tools">
-    <select id="sort">
-      <option value="prio">Trier : priorité</option>
-      <option value="rx">Trier : le plus prescrit</option>
-      <option value="date">Trier : plus récent</option>
-      <option value="nom">Trier : nom A→Z</option>
-      <option value="labo">Trier : laboratoire</option>
-    </select>
-    <select id="group">
-      <option value="">Grouper : aucun</option>
-      <option value="classe">Grouper : classe</option>
-      <option value="labo">Grouper : laboratoire</option>
-      <option value="delegue">Grouper : délégué</option>
-      <option value="statut">Grouper : statut</option>
-    </select>
-  </div>
 </div>
 
 <main id="main"></main>
@@ -347,23 +379,38 @@ td.n{font-weight:700}
     <button class="btn" id="tutoOk">J'ai compris</button>
   </div>
 </div>
+<div class="modalbg" id="wipeModal">
+  <div class="modal">
+    <div class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2.2" stroke-linecap="round"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="16.8" r=".4"/></svg></div>
+    <h3>Tout effacer ?</h3>
+    <p>Cette action supprime <b>définitivement</b> tous les produits, pharmacies, gestes et prescriptions de ce téléphone. Elle est irréversible. Pensez à exporter une sauvegarde avant.</p>
+    <button class="danger" id="wipeYes">Oui, tout effacer</button>
+    <button class="cancel" id="wipeNo">Annuler</button>
+  </div>
+</div>
 <div class="viewer" id="viewer"><img id="viewerImg" alt=""></div>
 <div class="toast" id="toast"></div>
 
 <script>
-const CLASSES = ["Antibiotiques","Antipaludiques","Antalgiques / Antipyrétiques","AINS","Corticoïdes",
-"Antihypertenseurs","Cardiologie","Antidiabétiques","Gastro-entérologie","Hépatologie",
-"Pneumologie / Asthme","ORL","Ophtalmologie","Dermatologie","Gynécologie","Urologie",
-"Neurologie / Psychiatrie","Antihistaminiques / Allergie","Antifongiques","Antiviraux",
-"Antiparasitaires / Vermifuges","Antianémiques / Fer","Vitamines / Compléments",
-"Anticoagulants / Hémostase","Contraceptifs","Pédiatrie","Phytothérapie","Autre"];
+const CLASSES = ["Antibiotiques","Antipaludiques","Antalgiques / Antipyrétiques","Antalgiques opioïdes",
+"AINS","Corticoïdes","Antispasmodiques","Antiémétiques / Nausées","Antidiarrhéiques","Laxatifs",
+"Antiacides / IPP","Antihypertenseurs","Cardiologie","Anticoagulants / Hémostase","Veinotoniques",
+"Antidiabétiques","Endocrinologie / Thyroïde","Gastro-entérologie","Hépatologie",
+"Pneumologie / Asthme","Antitussifs / Expectorants","ORL","Ophtalmologie","Dermatologie",
+"Gynécologie","Contraceptifs","Urologie","Neurologie / Psychiatrie","Antiépileptiques",
+"Anxiolytiques / Somnifères","Antidépresseurs","Rhumatologie","Antihistaminiques / Allergie",
+"Antifongiques","Antiviraux","Antiparasitaires / Vermifuges","Antianémiques / Fer",
+"Vitamines / Compléments","Vaccins","Pédiatrie","Phytothérapie","Autre"];
 const FORMES = ["Comprimé","Gélule","Sirop / Suspension","Sachet","Injectable","Suppositoire","Ovule",
 "Pommade / Crème","Gel","Collyre","Gouttes","Spray / Aérosol","Patch","Autre"];
 const STATUTS = {"Retenu":"var(--ok)","À l'essai":"var(--test)","À évaluer":"var(--wait)","Écarté":"var(--out)"};
 const DISPO = {"Disponible":"var(--ok)","Sur commande":"var(--test)","Rupture":"var(--wait)","Non référencé":"var(--out)"};
 const GESTES = ["Échantillons","Cadeau / objet","Repas / invitation","Formation / congrès","Matériel de cabinet","Appui financier","Autre"];
 
-let DB, ALL=[], PHARM=[], filtClasse="", editId=null, tab="liste";
+let DB, ALL=[], PHARM=[], filtClasse="", editId=null, tab="liste", searching=false, sortMode="prio";
+const SORTS=[["prio","Priorité"],["rx","Plus prescrit"],["date","Récent"],["nom","A→Z"]];
+const TILE=["#FFF0E6","#EAF7F4","#EEF2FF","#FCF0F7","#F1F6E9","#FFF6E0"];
+function tintFor(s){let x=0;for(const ch of (s||"")) x+=ch.charCodeAt(0);return TILE[x%TILE.length];}
 let draftPhotos=[], draftStars=0, draftGestes=[], draftDispos=[];
 
 function openDB(){return new Promise((res,rej)=>{
@@ -386,6 +433,9 @@ const today=()=>new Date().toISOString().slice(0,10);
 const fdate=d=>d?d.split("-").reverse().join("/"):"";
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+function flyPlus(x,y){const s=document.createElement("div");s.className="plus1";s.textContent="+1 ℞";s.style.left=x+"px";s.style.top=y+"px";document.body.appendChild(s);setTimeout(()=>s.remove(),800);}
+function staggerCards(){ if(searching) return; document.querySelectorAll("#main .card").forEach((c,i)=>{ c.classList.add("in"); c.style.animationDelay=Math.min(i*45,320)+"ms"; }); }
+function swapFade(){ const m=$("main"); m.classList.remove("swap"); void m.offsetWidth; m.classList.add("swap"); }
 function compress(file,max=1100,q=.7){return new Promise(res=>{
   const fr=new FileReader();
   fr.onload=()=>{const img=new Image();img.onload=()=>{
@@ -432,7 +482,7 @@ function filtered(){
     const ph=(p.dispos||[]).map(d=>d.nom).join(" ");
     return [p.nom,p.dci,p.labo,p.delegue,p.indications,p.classe,ph].join(" ").toLowerCase().includes(q);
   });
-  const s=$("sort").value;
+  const s=sortMode;
   L.sort((a,b)=>
     s==="nom"?a.nom.localeCompare(b.nom):
     s==="labo"?(a.labo||"zz").localeCompare(b.labo||"zz"):
@@ -442,22 +492,17 @@ function filtered(){
   return L;
 }
 function cardHTML(p){
-  const c=STATUTS[p.statut]||"var(--out)", g=(p.gestes||[]).length, d=dispoOf(p), r=nbRx(p);
+  const c=STATUTS[p.statut]||"var(--out)", g=(p.gestes||[]).length, r=nbRx(p);
+  const init=((p.dci||p.nom||"?").trim()[0]||"?").toUpperCase();
   return `<div class="card" data-id="${p.id}">
-    <div class="strip" style="background:${c}"></div>
-    ${p.photos&&p.photos[0]?`<img class="thumb" src="${p.photos[0]}" alt="">`:`<div class="thumb">℞</div>`}
+    <div class="tile" style="background:${tintFor(p.classe)}">${p.photos&&p.photos[0]?`<img src="${p.photos[0]}" alt="">`:init}</div>
     <div class="info">
-      <div class="nom">${esc(p.nom)}</div>
+      <div class="nom"><span class="dot" style="background:${c}"></span>${esc(p.nom)}</div>
       <div class="dci">${esc(p.dci||p.dosage||"—")}</div>
       <div class="meta">
-        <span class="stat" style="background:${c}">${esc(p.statut)}</span>
         <span class="stars">${stars(p.etoiles)}</span>
         ${r?`<span class="tag rx">℞ ${r}</span>`:""}
         ${g?`<span class="tag gift">🎁 ${g}</span>`:""}
-        ${d?`<span class="tag pharm">✚ ${d}</span>`:""}
-      </div>
-      <div class="meta">
-        ${p.classe?`<span class="tag">${esc(p.classe)}</span>`:""}
         ${p.labo?`<span class="tag labo">${esc(p.labo)}</span>`:""}
         ${p.prix?`<span class="tag">${p.prix} F</span>`:""}
       </div>
@@ -468,18 +513,18 @@ function cardHTML(p){
 function bindCards(){
   document.querySelectorAll("#main .card[data-id]").forEach(c=>c.onclick=()=>openDetail(c.dataset.id));
   document.querySelectorAll("#main .rxbtn[data-rx]").forEach(b=>b.onclick=e=>{
-    e.stopPropagation(); prescrire(b.dataset.rx);});
+    e.stopPropagation(); const r=b.getBoundingClientRect(); flyPlus(r.left+r.width/2, r.top+6); prescrire(b.dataset.rx);});
 }
 function renderListe(){
-  const L=filtered(), g=$("group").value, m=$("main");
+  const L=filtered(), g="", m=$("main");
   if(!ALL.length){m.innerHTML=`<div class="empty"><b>Aucun produit enregistré</b>Au prochain passage d'un délégué, photographiez la boîte et créez la fiche.</div>`;return;}
   if(!L.length){m.innerHTML=`<div class="empty"><b>Aucun résultat</b>Modifiez la recherche ou le filtre de classe.</div>`;return;}
-  if(!g){m.innerHTML=L.map(cardHTML).join("");bindCards();return;}
+  if(!g){m.innerHTML=L.map(cardHTML).join("");bindCards();staggerCards();return;}
   const gr={};
   L.forEach(p=>{const k=p[g]||"Non renseigné";(gr[k]=gr[k]||[]).push(p)});
   m.innerHTML=Object.keys(gr).sort().map(k=>
     `<div class="grouphead">${esc(k)} · ${gr[k].length}</div>`+gr[k].map(cardHTML).join("")).join("");
-  bindCards();
+  bindCards();staggerCards();
 }
 
 /* ---------- Pharmacies ---------- */
@@ -646,20 +691,30 @@ function renderData(){
       for(const ph of (j.pharmacies||[])) if(ph&&ph.nom) await put("pharmacies",ph);
       await refresh(); toast(prods.length+" produits restaurés");
     }catch(err){toast("Fichier illisible")}};
-  $("wipe").onclick=async()=>{
-    if(!confirm("⚠️ ATTENTION\n\nCette action efface DÉFINITIVEMENT tous vos produits, pharmacies, gestes et prescriptions. Elle est irréversible.\n\nPensez à exporter une sauvegarde avant.\n\nConfirmer la suppression totale ?"))return;
-    for(const p of ALL) await del("produits",p.id);
-    for(const ph of PHARM) await del("pharmacies",ph.nom);
-    await refresh(); toast("Base vidée");};
+  $("wipe").onclick=()=>$("wipeModal").classList.add("open");
   $("tutoBtn").onclick=openTuto;
 }
+$("wipeNo").onclick=()=>$("wipeModal").classList.remove("open");
+$("wipeModal").onclick=e=>{if(e.target.id==="wipeModal")$("wipeModal").classList.remove("open");};
+$("wipeYes").onclick=async()=>{
+  $("wipeModal").classList.remove("open");
+  for(const p of ALL) await del("produits",p.id);
+  for(const ph of PHARM) await del("pharmacies",ph.nom);
+  await refresh(); toast("Base vidée");
+};
 
 /* ---------- Rendu global ---------- */
+const PAGES={liste:["Produits",()=>ALL.length+" fiche"+(ALL.length>1?"s":"")],pharm:["Pharmacies",()=>PHARM.length+" officine"+(PHARM.length>1?"s":"")],cmp:["Comparer",()=>"arbitrage"],bilan:["Bilan",()=>"transparence"],data:["Mes données",()=>""]};
+function renderSort(){
+  $("sortPills").innerHTML=SORTS.map(([v,l])=>`<button class="pill ${sortMode===v?"on":""}" data-s="${v}">${l}</button>`).join("");
+  $("sortPills").querySelectorAll(".pill").forEach(b=>b.onclick=()=>{sortMode=b.dataset.s;renderSort();renderListe();});
+}
 function render(){
   const isL = tab==="liste";
+  const pg=PAGES[tab]||PAGES.liste;
+  $("pageTitle").textContent=pg[0]; $("pageCount").textContent=pg[1]();
   $("filters").style.display = isL?"block":"none";
-  $("searchrow").style.display = isL?"flex":"none";
-  if(isL) renderListe();
+  if(isL){ renderSort(); renderListe(); }
   else if(tab==="pharm") renderPharm();
   else if(tab==="cmp") renderCmp();
   else if(tab==="bilan") renderBilan();
@@ -735,7 +790,7 @@ function openDetail(id){
     ${p.tel?`<a class="call" href="tel:${esc(tel(p.tel))}">Appeler ${esc(p.delegue||"le délégué")}</a>`:""}`;
   $("detBody").querySelectorAll(".gal img").forEach(im=>im.onclick=()=>{
     $("viewerImg").src=im.src;$("viewer").classList.add("open")});
-  $("rxAdd").onclick=async()=>{await prescrire(id); openDetail(id);};
+  $("rxAdd").onclick=async(e)=>{const t=e.currentTarget.getBoundingClientRect(); flyPlus(t.left+t.width/2, t.top+10); await prescrire(id); openDetail(id);};
   $("detBody").querySelectorAll(".xrow button[data-rx]").forEach(b=>b.onclick=()=>{
     if(confirm("Retirer cette prescription du journal ?")) annulerRx(id,b.dataset.rx);});
   $("detBody").querySelectorAll(".chk button").forEach(b=>b.onclick=()=>verifDispo(id,b.dataset.ph,b.dataset.v));
@@ -868,17 +923,15 @@ $("delBtn").onclick=async()=>{
 
 document.querySelectorAll("nav button[data-tab]").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
-  b.classList.add("on"); tab=b.dataset.tab; window.scrollTo(0,0); render();
+  b.classList.add("on"); tab=b.dataset.tab; window.scrollTo(0,0); render(); swapFade();
 });
 $("navAdd").onclick=()=>openForm(null);
-$("gearBtn").onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));tab="data";window.scrollTo(0,0);render();};
+$("gearBtn").onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));tab="data";window.scrollTo(0,0);render();swapFade();};
 function openTuto(){$("tutoSheet").classList.add("open");window.scrollTo(0,0);}
 $("tutoClose").onclick=()=>$("tutoSheet").classList.remove("open");
 $("tutoOk").onclick=()=>$("tutoSheet").classList.remove("open");
 setTimeout(()=>{const s=$("splash");if(s){s.classList.add("hide");setTimeout(()=>s.remove(),600);}},3500);
-$("q").oninput=renderListe;
-$("sort").onchange=renderListe;
-$("group").onchange=renderListe;
+$("q").oninput=()=>{searching=true;renderListe();searching=false;};
 
 openDB().then(refresh);
 if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
