@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E5561A">
+<title>VisiteMed — by THE SHIELD</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+:root{
+  --teal:#E5561A; --teal-2:#C7481A; --gold:#F59E0B; --paper:#FAF7F4; --card:#fff;
+  --ink:#1E1A17; --ink-2:#7A716B; --line:#EFE8E2;
+  --ok:#0E8B7C; --test:#3B82F6; --out:#A8A29E; --wait:#C2740B;
+  --danger:#C0392B; --gift:#7C3AED;
+  --or1:#F98037; --or2:#E5561A;
+  --r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--paper); color:var(--ink); font-size:15px; line-height:1.45;
+  padding-bottom:calc(86px + env(safe-area-inset-bottom));}
+h1,h2,h3{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+
+header{position:sticky; top:0; z-index:30; background:linear-gradient(150deg,var(--or1),var(--or2)); color:#fff;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-size:19px;font-weight:700;letter-spacing:.2px}
+.brand .v{margin-left:auto;font-size:11px;opacity:.75}
+.mark{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-weight:800;color:#fff;font-size:16px}
+.gear{margin-left:auto;background:rgba(255,255,255,.16);border:none;color:#fff;width:36px;height:36px;border-radius:10px;font-size:16px}
+.sub{font-size:12px;opacity:.8;margin-top:2px}
+.searchrow{display:flex;gap:8px;margin-top:10px}
+.searchrow input{flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);
+  color:#fff;border-radius:10px;padding:9px 12px;outline:none}
+.searchrow input::placeholder{color:rgba(255,255,255,.7)}
+
+.chips{display:flex;gap:7px;overflow-x:auto;padding:10px 14px 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  padding:6px 12px;border-radius:999px;font-size:13px}
+.chip.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tools{display:flex;gap:8px;padding:10px 14px 0}
+.tools select{flex:1;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}
+
+main{padding:12px 14px}
+.card{display:flex;gap:11px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r); padding:10px; margin-bottom:10px; position:relative; overflow:hidden;}
+.card .strip{position:absolute;left:0;top:0;bottom:0;width:4px}
+.thumb{width:64px;height:64px;flex:0 0 64px;border-radius:10px;object-fit:cover;background:#E9EEEC;
+  display:grid;place-items:center;color:var(--ink-2);font-size:22px}
+.info{min-width:0;flex:1}
+.info .nom{font-weight:700;font-size:15px;line-height:1.25}
+.info .dci{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;align-items:center}
+.tag{font-size:11px;background:#EDF2F0;color:var(--ink-2);padding:2px 7px;border-radius:6px}
+.tag.labo{background:#E7EFFB;color:#26478A}
+.tag.gift{background:#F3E6F8;color:var(--gift);font-weight:700}
+.tag.pharm{background:#E4F3EC;color:var(--ok);font-weight:700}
+.tag.rx{background:#DFF0E9;color:#06553C;font-weight:700}
+.rxbtn{flex:0 0 auto;align-self:center;background:linear-gradient(150deg,var(--or1),var(--or2));color:#fff;border:none;border-radius:14px;box-shadow:0 4px 10px rgba(229,86,26,.3);
+  width:46px;height:46px;font-size:15px;font-weight:800;line-height:1.1;box-shadow:0 2px 6px rgba(14,124,90,.25)}
+.rxbtn:active{transform:scale(.93)}
+.rxbig{width:100%;background:var(--ok);color:#fff;border:none;border-radius:12px;padding:15px;font-weight:800;font-size:16px;margin-top:12px}
+.rxlast{text-align:center;font-size:12.5px;color:var(--ink-2);margin-top:7px}
+.chk{display:flex;gap:6px;flex:0 0 auto}
+.chk button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;font-size:13px;font-weight:700}
+.chk button.y{color:var(--ok)} .chk button.n{color:var(--wait)}
+.xrow{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:8px 0;border-bottom:1px solid var(--line)}
+.xrow:last-child{border-bottom:none}
+.xrow button{background:none;border:none;color:var(--danger);font-size:17px;font-weight:700;padding:0 6px}
+.stars{color:var(--gold);font-size:12.5px;letter-spacing:1px}
+.stat{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;color:#fff}
+
+.empty{text-align:center;color:var(--ink-2);padding:48px 20px}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
+.grouphead{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--teal);margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.grouphead:after{content:"";flex:1;height:1px;background:var(--line)}
+.alert{background:#FFF6E5;border:1px solid #F0D69B;color:#7A4E00;border-radius:12px;padding:11px 13px;font-size:13px;margin-top:12px}
+.alert b{display:block;margin-bottom:3px}
+
+.fab{position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:40;
+  background:var(--gold);color:#12211F;border:none;border-radius:999px;
+  padding:14px 18px;font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fff;border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom)}
+nav button{background:none;border:none;padding:9px 0 10px;color:var(--ink-2);font-size:10.5px;display:grid;justify-items:center;gap:3px}
+nav button .i{font-size:18px;line-height:1}
+nav button.on{color:var(--teal);font-weight:700}
+nav button.navfab{position:relative}
+nav .fbx{position:absolute;left:50%;top:-18px;transform:translateX(-50%);width:56px;height:56px;border-radius:18px;background:linear-gradient(150deg,var(--or1),var(--or2));color:#fff;font-size:30px;display:grid;place-items:center;box-shadow:0 8px 18px rgba(229,86,26,.42);border:4px solid #fff}
+
+.sheet{position:fixed;inset:0;z-index:60;background:var(--paper);overflow-y:auto;display:none;padding:0 0 40px}
+.sheet.open{display:block}
+.sheethead{position:sticky;top:0;background:var(--teal);color:#fff;display:flex;align-items:center;gap:8px;
+  padding:calc(12px + env(safe-area-inset-top)) 14px 12px;z-index:5}
+.sheethead h2{font-size:17px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sheethead button{background:rgba(255,255,255,.16);border:none;color:#fff;border-radius:9px;padding:7px 11px;font-weight:700;font-size:13px}
+.body{padding:14px}
+
+label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.4px}
+input[type=text],input[type=tel],input[type=number],input[type=date],select,textarea{
+  width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal-2);box-shadow:0 0 0 3px rgba(0,112,107,.12)}
+textarea{min-height:66px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.photos img{width:74px;height:74px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.photobox{position:relative}
+.photobox .x{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border:none;border-radius:999px;width:22px;height:22px;font-weight:700;line-height:1}
+.addphoto{width:74px;height:74px;border:1.5px dashed var(--teal-2);border-radius:10px;background:#fff;
+  color:var(--teal);font-size:22px;display:grid;place-items:center}
+.hint{font-size:12px;color:var(--ink-2);margin-top:6px}
+
+.starpick{display:flex;gap:4px;margin-top:4px}
+.starpick button{background:none;border:none;font-size:30px;color:#D5DBD9;padding:0 2px}
+.starpick button.on{color:var(--gold)}
+
+.subcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 10px 12px;margin-bottom:8px;position:relative}
+.subcard .del{position:absolute;top:4px;right:4px;background:none;border:none;color:var(--danger);font-size:20px;font-weight:700;padding:2px 8px}
+.subcard .r{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.subcard input,.subcard select{padding:8px 10px;font-size:14px}
+.subcard label{margin:8px 0 4px;font-size:10.5px}
+.mini{width:100%;background:#fff;border:1.5px dashed var(--teal-2);color:var(--teal);
+  border-radius:12px;padding:11px;font-weight:700;font-size:14px}
+
+.btn{width:100%;background:var(--teal);color:#fff;border:none;border-radius:12px;
+  padding:14px;font-weight:800;font-size:16px;margin-top:18px}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);margin-top:10px}
+.btn.red{background:#fff;color:var(--danger);border:1px solid #F1C9C4;margin-top:10px}
+
+.gal{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.gal img{height:160px;border-radius:12px;border:1px solid var(--line)}
+.dl{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:4px 12px;margin-top:12px}
+.dl>div{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.dl>div:last-child{border-bottom:none}
+.dl .k{flex:0 0 100px;color:var(--ink-2);font-size:12px;text-transform:uppercase;font-weight:700;letter-spacing:.3px;padding-top:2px}
+.dl b{font-weight:600;flex:1}
+.call{display:block;text-align:center;background:var(--ok);color:#fff;text-decoration:none;border-radius:12px;padding:13px;font-weight:800;margin-top:14px}
+
+.plist{background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-top:8px;overflow:hidden}
+.prow{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:none}
+.prow .pn{flex:1;min-width:0}
+.prow .pn b{display:block;font-weight:700;font-size:14px}
+.prow .pn i{font-style:normal;font-size:12px;color:var(--ink-2)}
+.prow a{background:var(--ok);color:#fff;text-decoration:none;border-radius:9px;padding:7px 11px;font-size:12px;font-weight:700;white-space:nowrap}
+
+.tl{position:relative;padding-left:18px;margin-top:10px}
+.tl:before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl .ev{position:relative;margin-bottom:13px}
+.tl .ev:before{content:"";position:absolute;left:-18px;top:5px;width:10px;height:10px;border-radius:99px;background:var(--gift);border:2px solid var(--paper)}
+.tl .d{font-size:11px;color:var(--ink-2);font-weight:700;letter-spacing:.3px}
+.tl .ty{font-weight:700;font-size:14px}
+.tl .de{font-size:13.5px;color:var(--ink-2)}
+
+.cmp{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th{background:#EDF2F0;text-align:left;padding:10px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-2);white-space:nowrap}
+td{padding:10px;border-top:1px solid var(--line);vertical-align:top}
+td.n{font-weight:700}
+.rank{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:var(--teal);color:#fff;font-size:11px;font-weight:800;margin-right:6px}
+
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--ink-2)}
+.bars{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-top:12px}
+.bar{margin-bottom:9px}
+.bar .t{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px}
+.bar .g{height:7px;background:#EDF2F0;border-radius:99px;overflow:hidden}
+.bar .g i{display:block;height:100%;background:var(--teal-2)}
+.bars.gift .bar .g i{background:var(--gift)}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));
+  background:var(--ink);color:#fff;padding:10px 16px;border-radius:99px;font-size:13px;z-index:80;
+  opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+.viewer{position:fixed;inset:0;background:#000;z-index:90;display:none;place-items:center}
+.viewer.open{display:grid}
+.viewer img{max-width:100%;max-height:100%}
+#splash{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,#F98037,#E5561A 60%,#C7481A);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .5s ease}
+#splash.hide{opacity:0;pointer-events:none}
+.sp-logo{width:104px;height:104px;border-radius:30px;background:rgba(255,255,255,.15);display:grid;place-items:center;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:pop .6s cubic-bezier(.2,.8,.2,1)}
+.sp-rx{color:#fff;font-weight:800;font-size:56px;line-height:1}
+.sp-star{position:absolute;bottom:16px;left:18px;color:#FFD9A0;font-size:20px}
+.sp-name{color:#fff;font-weight:800;font-size:26px;letter-spacing:.5px}
+.sp-by{color:#fff;font-weight:700;font-size:12px;letter-spacing:2px;opacity:.9;margin-top:-6px}
+.sp-tag{color:rgba(255,255,255,.8);font-size:12.5px}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.tstep{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:11px}
+.tstep .n{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:#FDEBE0;color:var(--or2);display:grid;place-items:center;font-weight:800;font-size:16px}
+.tstep b{display:block;font-size:14.5px;margin-bottom:2px}
+.tstep p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div class="sp-logo"><span class="sp-rx">℞</span><span class="sp-star">★</span></div>
+  <div class="sp-name">VisiteMed</div>
+  <div class="sp-by">by THE SHIELD</div>
+  <div class="sp-tag">Le répertoire honnête des délégués</div>
+</div>
+
+<header>
+  <div class="brand">
+    <div class="mark">℞</div>
+    <div><h1>VisiteMed</h1><div class="sub">by THE SHIELD</div></div>
+    <button class="gear" id="gearBtn" aria-label="Données et réglages">☰</button>
+  </div>
+  <div class="searchrow" id="searchrow">
+    <input id="q" type="text" placeholder="Produit, DCI, labo, délégué, pharmacie…">
+  </div>
+</header>
+
+<div id="filters">
+  <div class="chips" id="chipClasses"></div>
+  <div class="tools">
+    <select id="sort">
+      <option value="prio">Trier : priorité</option>
+      <option value="rx">Trier : le plus prescrit</option>
+      <option value="date">Trier : plus récent</option>
+      <option value="nom">Trier : nom A→Z</option>
+      <option value="labo">Trier : laboratoire</option>
+    </select>
+    <select id="group">
+      <option value="">Grouper : aucun</option>
+      <option value="classe">Grouper : classe</option>
+      <option value="labo">Grouper : laboratoire</option>
+      <option value="delegue">Grouper : délégué</option>
+      <option value="statut">Grouper : statut</option>
+    </select>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<nav>
+  <button class="on" data-tab="liste"><span class="i">▤</span>Produits</button>
+  <button data-tab="pharm"><span class="i">✚</span>Pharmacies</button>
+  <button id="navAdd" class="navfab" aria-label="Nouvelle fiche"><span class="fbx">+</span></button>
+  <button data-tab="cmp"><span class="i">⇄</span>Comparer</button>
+  <button data-tab="bilan"><span class="i">◔</span>Bilan</button>
+</nav>
+
+<div class="sheet" id="formSheet">
+  <div class="sheethead">
+    <h2 id="formTitle">Nouveau produit</h2>
+    <button id="formClose">Fermer</button>
+  </div>
+  <div class="body">
+    <label>Photos (boîte, notice, posologie)</label>
+    <div class="photos" id="photos"></div>
+    <input type="file" id="camIn" accept="image/*" capture="environment" hidden>
+    <input type="file" id="fileIn" accept="image/*" multiple hidden>
+    <button class="btn ghost" id="pickGal" style="margin-top:8px">Choisir dans la galerie</button>
+
+    <label>Nom commercial *</label>
+    <input type="text" id="f_nom" placeholder="Ex : Cefixime 200">
+    <label>DCI / composition</label>
+    <input type="text" id="f_dci" placeholder="Ex : céfixime">
+    <label>Classe thérapeutique</label>
+    <select id="f_classe"></select>
+    <div class="row2">
+      <div><label>Forme</label><select id="f_forme"></select></div>
+      <div><label>Dosage</label><input type="text" id="f_dosage" placeholder="200 mg, B/8"></div>
+    </div>
+    <label>Laboratoire</label>
+    <input type="text" id="f_labo" list="dlLabo" placeholder="Ex : Denk, Cipla…">
+    <datalist id="dlLabo"></datalist>
+    <label>Délégué médical</label>
+    <input type="text" id="f_delegue" list="dlDel" placeholder="Nom du délégué">
+    <datalist id="dlDel"></datalist>
+    <label>Téléphone du délégué</label>
+    <input type="tel" id="f_tel" placeholder="07 00 00 00 00">
+    <div class="row2">
+      <div><label>Prix (FCFA)</label><input type="number" id="f_prix" inputmode="numeric" placeholder="2500"></div>
+      <div><label>Date de visite</label><input type="date" id="f_date"></div>
+    </div>
+    <label>Indications</label>
+    <textarea id="f_indic" placeholder="Ex : infections ORL, urinaires…"></textarea>
+    <label>Posologie</label>
+    <textarea id="f_poso" placeholder="Adulte : 1 cp x2/j pendant 7 j. Enfant : …"></textarea>
+
+    <div class="grouphead">Où le trouver</div>
+    <div id="dispos"></div>
+    <button class="mini" id="addDispo">＋ Ajouter une pharmacie</button>
+    <datalist id="dlPharm"></datalist>
+
+    <div class="grouphead">Priorité</div>
+    <label>Priorité de prescription</label>
+    <div class="starpick" id="starpick"></div>
+    <label>Pourquoi ce produit est prioritaire</label>
+    <textarea id="f_motif" placeholder="Efficacité constatée, bonne tolérance, prix accessible, disponible partout, seule alternative pendant la rupture…"></textarea>
+    <label>Statut</label>
+    <select id="f_statut">
+      <option value="À évaluer">À évaluer</option>
+      <option value="Retenu">Retenu — je prescris</option>
+      <option value="À l'essai">À l'essai</option>
+      <option value="Écarté">Écarté</option>
+    </select>
+
+    <div class="grouphead">Gestes du labo / délégué</div>
+    <div id="gestes"></div>
+    <button class="mini" id="addGeste">＋ Noter un geste</button>
+    <div class="hint">Échantillons, cadeaux, invitations, congrès… Chaque geste est daté. À relire avant de fixer la priorité.</div>
+
+    <label>Mon avis / notes</label>
+    <textarea id="f_note" placeholder="Tolérance, retours des patients, disponibilité, prix vs concurrent…"></textarea>
+
+    <button class="btn" id="save">Enregistrer</button>
+    <button class="btn red" id="delBtn" style="display:none">Supprimer ce produit</button>
+  </div>
+</div>
+
+<div class="sheet" id="detSheet">
+  <div class="sheethead">
+    <h2 id="detTitle">Produit</h2>
+    <button id="detEdit">Modifier</button>
+    <button id="detClose">Fermer</button>
+  </div>
+  <div class="body" id="detBody"></div>
+</div>
+
+<div class="sheet" id="phSheet">
+  <div class="sheethead">
+    <h2 id="phTitle">Pharmacie</h2>
+    <button id="phClose">Fermer</button>
+  </div>
+  <div class="body" id="phBody"></div>
+</div>
+
+<div class="sheet" id="tutoSheet">
+  <div class="sheethead"><h2>Comment ça marche</h2><button id="tutoClose">Fermer</button></div>
+  <div class="body">
+    <div class="hint" style="margin:0 0 16px">VisiteMed recense chaque produit présenté par un délégué, permet de comparer par classe, et trace honnêtement gestes reçus et prescriptions.</div>
+    <div class="tstep"><div class="n">1</div><div><b>Le délégué passe : capturez</b><p>Appuyez sur le bouton + au centre. Photographiez d'abord la boîte, puis remplissez nom, DCI, classe et labo — en 30 secondes.</p></div></div>
+    <div class="tstep"><div class="n">2</div><div><b>Priorité et motif</b><p>Mettez des étoiles et surtout écrivez pourquoi ce produit mérite d'être prescrit : efficacité, tolérance, prix, disponibilité.</p></div></div>
+    <div class="tstep"><div class="n">3</div><div><b>Tracez les gestes reçus</b><p>Échantillons, cadeau, repas, invitation… notez-les dès la visite, avec leur valeur. Ils apparaissent dans la frise de la fiche.</p></div></div>
+    <div class="tstep"><div class="n">4</div><div><b>Prescrivez en un appui</b><p>À chaque prescription, appuyez sur ℞+1 sur la carte du produit. Le compteur et la date se mettent à jour seuls.</p></div></div>
+    <div class="tstep"><div class="n">5</div><div><b>Comparez et arbitrez</b><p>L'onglet Comparer classe les produits d'une même classe par priorité puis prix. Le Bilan met face à face gestes reçus et prescriptions par labo.</p></div></div>
+    <div class="alert" style="margin-top:6px"><b>Le cœur : rester honnête</b>Si un produit est prioritaire, qu'on vous a fait des cadeaux, mais qu'aucun motif clinique n'est noté, VisiteMed vous alerte. Notez toujours pourquoi vous priorisez.</div>
+    <button class="btn" id="tutoOk">J'ai compris</button>
+  </div>
+</div>
+<div class="viewer" id="viewer"><img id="viewerImg" alt=""></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CLASSES = ["Antibiotiques","Antipaludiques","Antalgiques / Antipyrétiques","AINS","Corticoïdes",
+"Antihypertenseurs","Cardiologie","Antidiabétiques","Gastro-entérologie","Hépatologie",
+"Pneumologie / Asthme","ORL","Ophtalmologie","Dermatologie","Gynécologie","Urologie",
+"Neurologie / Psychiatrie","Antihistaminiques / Allergie","Antifongiques","Antiviraux",
+"Antiparasitaires / Vermifuges","Antianémiques / Fer","Vitamines / Compléments",
+"Anticoagulants / Hémostase","Contraceptifs","Pédiatrie","Phytothérapie","Autre"];
+const FORMES = ["Comprimé","Gélule","Sirop / Suspension","Sachet","Injectable","Suppositoire","Ovule",
+"Pommade / Crème","Gel","Collyre","Gouttes","Spray / Aérosol","Patch","Autre"];
+const STATUTS = {"Retenu":"var(--ok)","À l'essai":"var(--test)","À évaluer":"var(--wait)","Écarté":"var(--out)"};
+const DISPO = {"Disponible":"var(--ok)","Sur commande":"var(--test)","Rupture":"var(--wait)","Non référencé":"var(--out)"};
+const GESTES = ["Échantillons","Cadeau / objet","Repas / invitation","Formation / congrès","Matériel de cabinet","Appui financier","Autre"];
+
+let DB, ALL=[], PHARM=[], filtClasse="", editId=null, tab="liste";
+let draftPhotos=[], draftStars=0, draftGestes=[], draftDispos=[];
+
+function openDB(){return new Promise((res,rej)=>{
+  const r=indexedDB.open("visitemed",2);
+  r.onupgradeneeded=e=>{const d=e.target.result;
+    if(!d.objectStoreNames.contains("produits")) d.createObjectStore("produits",{keyPath:"id"});
+    if(!d.objectStoreNames.contains("pharmacies")) d.createObjectStore("pharmacies",{keyPath:"nom"});};
+  r.onsuccess=e=>{DB=e.target.result;res()};
+  r.onerror=()=>rej(r.error);
+});}
+const st=(s,m)=>DB.transaction(s,m).objectStore(s);
+const getAll=s=>new Promise(r=>{const q=st(s,"readonly").getAll();q.onsuccess=()=>r(q.result||[])});
+const put=(s,o)=>new Promise(r=>{const q=st(s,"readwrite").put(o);q.onsuccess=()=>r()});
+const del=(s,k)=>new Promise(r=>{const q=st(s,"readwrite").delete(k);q.onsuccess=()=>r()});
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const stars=n=>"★".repeat(n||0)+"☆".repeat(5-(n||0));
+const today=()=>new Date().toISOString().slice(0,10);
+const fdate=d=>d?d.split("-").reverse().join("/"):"";
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+function compress(file,max=1100,q=.7){return new Promise(res=>{
+  const fr=new FileReader();
+  fr.onload=()=>{const img=new Image();img.onload=()=>{
+    let w=img.width,h=img.height;
+    if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>max){w=Math.round(w*max/h);h=max}
+    const c=document.createElement("canvas");c.width=w;c.height=h;
+    c.getContext("2d").drawImage(img,0,0,w,h);
+    res(c.toDataURL("image/jpeg",q));};img.src=fr.result;};
+  fr.readAsDataURL(file);});}
+const dispoOf=p=>(p.dispos||[]).filter(d=>d.statut==="Disponible").length;
+const alerte=p=>(p.etoiles||0)>=4 && (p.gestes||[]).length>0 && !(p.motif||"").trim();
+const tel=t=>String(t||"").replace(/\s/g,"");
+const nbRx=p=>(p.rx||[]).length;
+const lastRx=p=>((p.rx||[]).slice().sort().pop()||"");
+const fdt=s=>s?s.slice(8,10)+"/"+s.slice(5,7)+"/"+s.slice(0,4)+" à "+s.slice(11,16):"";
+
+/* Une prescription = une date + une heure. Historique conservé. */
+async function prescrire(id){
+  const p=ALL.find(x=>x.id===id); if(!p) return;
+  p.rx=[...(p.rx||[]), new Date().toISOString()];
+  await put("produits",p); await refresh();
+  toast("Prescription notée · "+nbRx(p)+" au total");
+}
+async function annulerRx(id,iso){
+  const p=ALL.find(x=>x.id===id); if(!p) return;
+  p.rx=(p.rx||[]).filter(x=>x!==iso);
+  await put("produits",p); await refresh(); openDetail(id); toast("Ligne retirée");
+}
+async function verifDispo(id,nomPh,statut){
+  const p=ALL.find(x=>x.id===id); if(!p) return;
+  const d=(p.dispos||[]).find(x=>x.nom===nomPh); if(!d) return;
+  d.statut=statut; d.date=today();
+  d.histo=[...(d.histo||[]),{date:today(),statut}];
+  await put("produits",p); await refresh(); openDetail(id);
+  toast(nomPh+" : "+statut.toLowerCase());
+}
+
+/* ---------- Produits ---------- */
+function filtered(){
+  const q=$("q").value.trim().toLowerCase();
+  let L=ALL.filter(p=>{
+    if(filtClasse && p.classe!==filtClasse) return false;
+    if(!q) return true;
+    const ph=(p.dispos||[]).map(d=>d.nom).join(" ");
+    return [p.nom,p.dci,p.labo,p.delegue,p.indications,p.classe,ph].join(" ").toLowerCase().includes(q);
+  });
+  const s=$("sort").value;
+  L.sort((a,b)=>
+    s==="nom"?a.nom.localeCompare(b.nom):
+    s==="labo"?(a.labo||"zz").localeCompare(b.labo||"zz"):
+    s==="rx"?(nbRx(b)-nbRx(a))||((b.etoiles||0)-(a.etoiles||0)):
+    s==="date"?(b.date||"").localeCompare(a.date||""):
+    ((b.etoiles||0)-(a.etoiles||0))||(b.date||"").localeCompare(a.date||""));
+  return L;
+}
+function cardHTML(p){
+  const c=STATUTS[p.statut]||"var(--out)", g=(p.gestes||[]).length, d=dispoOf(p), r=nbRx(p);
+  return `<div class="card" data-id="${p.id}">
+    <div class="strip" style="background:${c}"></div>
+    ${p.photos&&p.photos[0]?`<img class="thumb" src="${p.photos[0]}" alt="">`:`<div class="thumb">℞</div>`}
+    <div class="info">
+      <div class="nom">${esc(p.nom)}</div>
+      <div class="dci">${esc(p.dci||p.dosage||"—")}</div>
+      <div class="meta">
+        <span class="stat" style="background:${c}">${esc(p.statut)}</span>
+        <span class="stars">${stars(p.etoiles)}</span>
+        ${r?`<span class="tag rx">℞ ${r}</span>`:""}
+        ${g?`<span class="tag gift">🎁 ${g}</span>`:""}
+        ${d?`<span class="tag pharm">✚ ${d}</span>`:""}
+      </div>
+      <div class="meta">
+        ${p.classe?`<span class="tag">${esc(p.classe)}</span>`:""}
+        ${p.labo?`<span class="tag labo">${esc(p.labo)}</span>`:""}
+        ${p.prix?`<span class="tag">${p.prix} F</span>`:""}
+      </div>
+    </div>
+    <button class="rxbtn" data-rx="${p.id}" title="Noter une prescription">℞<br>+1</button>
+  </div>`;
+}
+function bindCards(){
+  document.querySelectorAll("#main .card[data-id]").forEach(c=>c.onclick=()=>openDetail(c.dataset.id));
+  document.querySelectorAll("#main .rxbtn[data-rx]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation(); prescrire(b.dataset.rx);});
+}
+function renderListe(){
+  const L=filtered(), g=$("group").value, m=$("main");
+  if(!ALL.length){m.innerHTML=`<div class="empty"><b>Aucun produit enregistré</b>Au prochain passage d'un délégué, photographiez la boîte et créez la fiche.</div>`;return;}
+  if(!L.length){m.innerHTML=`<div class="empty"><b>Aucun résultat</b>Modifiez la recherche ou le filtre de classe.</div>`;return;}
+  if(!g){m.innerHTML=L.map(cardHTML).join("");bindCards();return;}
+  const gr={};
+  L.forEach(p=>{const k=p[g]||"Non renseigné";(gr[k]=gr[k]||[]).push(p)});
+  m.innerHTML=Object.keys(gr).sort().map(k=>
+    `<div class="grouphead">${esc(k)} · ${gr[k].length}</div>`+gr[k].map(cardHTML).join("")).join("");
+  bindCards();
+}
+
+/* ---------- Pharmacies ---------- */
+function produitsEn(nom){
+  return ALL.map(p=>{const d=(p.dispos||[]).find(x=>x.nom===nom);return d?{p,d}:null}).filter(Boolean);
+}
+function renderPharm(){
+  const m=$("main");
+  if(!PHARM.length){m.innerHTML=`<div class="empty"><b>Aucune pharmacie</b>Les pharmacies s'ajoutent depuis la fiche d'un produit, section « Où le trouver ».</div>`;return;}
+  const L=[...PHARM].sort((a,b)=>a.nom.localeCompare(b.nom));
+  m.innerHTML=`<div class="hint" style="margin:0 0 10px">Appuyez sur une pharmacie pour voir tout ce qu'on y trouve.</div>
+    <div class="plist">${L.map(ph=>{
+      const n=produitsEn(ph.nom).filter(x=>x.d.statut==="Disponible").length;
+      return `<div class="prow" data-ph="${esc(ph.nom)}">
+        <div class="pn"><b>${esc(ph.nom)}</b><i>${esc(ph.commune||"—")} · ${n} produit${n>1?"s":""} dispo</i></div>
+        ${ph.tel?`<a href="tel:${esc(tel(ph.tel))}">Appeler</a>`:""}
+      </div>`}).join("")}</div>`;
+  m.querySelectorAll(".prow").forEach(r=>{
+    r.querySelectorAll("a").forEach(a=>a.onclick=e=>e.stopPropagation());
+    r.onclick=()=>openPharm(r.dataset.ph);});
+}
+function openPharm(nom){
+  const ph=PHARM.find(x=>x.nom===nom); if(!ph) return;
+  const L=produitsEn(nom);
+  $("phTitle").textContent=ph.nom;
+  $("phBody").innerHTML=`
+    <div class="dl">
+      <div><span class="k">Commune</span><b>${esc(ph.commune||"—")}</b></div>
+      <div><span class="k">Téléphone</span><b>${esc(ph.tel||"—")}</b></div>
+    </div>
+    ${ph.tel?`<a class="call" href="tel:${esc(tel(ph.tel))}">Appeler la pharmacie</a>`:""}
+    <div class="grouphead">Produits référencés ici</div>
+    ${L.length?`<div class="plist">${L.map(({p,d})=>`
+      <div class="prow" data-id="${p.id}">
+        <div class="pn"><b>${esc(p.nom)}</b><i>${esc(p.dci||p.classe||"")}${d.prix?" · "+d.prix+" F":""}</i></div>
+        <span class="stat" style="background:${DISPO[d.statut]||"var(--out)"}">${esc(d.statut)}</span>
+      </div>`).join("")}</div>`
+    :`<div class="hint">Aucun produit rattaché à cette pharmacie.</div>`}
+    <button class="btn red" id="phDel">Retirer cette pharmacie du registre</button>`;
+  $("phBody").querySelectorAll(".prow[data-id]").forEach(r=>r.onclick=()=>{
+    $("phSheet").classList.remove("open"); openDetail(r.dataset.id);});
+  $("phDel").onclick=async()=>{
+    if(!confirm("Retirer « "+ph.nom+" » du registre ? Les fiches produits ne sont pas modifiées."))return;
+    await del("pharmacies",ph.nom); $("phSheet").classList.remove("open"); await refresh(); toast("Pharmacie retirée");};
+  $("phSheet").classList.add("open"); window.scrollTo(0,0);
+}
+$("phClose").onclick=()=>$("phSheet").classList.remove("open");
+
+/* ---------- Comparateur ---------- */
+function renderCmp(){
+  const m=$("main");
+  const classes=[...new Set(ALL.map(p=>p.classe).filter(Boolean))].sort();
+  if(!classes.length){m.innerHTML=`<div class="empty"><b>Rien à comparer</b>Ajoutez au moins deux produits d'une même classe.</div>`;return;}
+  let sel=localStorage.getItem("cmpClasse"); if(!classes.includes(sel)) sel=classes[0];
+  const L=ALL.filter(p=>p.classe===sel).sort((a,b)=>((b.etoiles||0)-(a.etoiles||0))||((a.prix||1e9)-(b.prix||1e9)));
+  m.innerHTML=`
+    <label style="margin-top:0">Classe à arbitrer</label>
+    <select id="cmpSel">${classes.map(c=>`<option ${c===sel?"selected":""}>${esc(c)}</option>`).join("")}</select>
+    <div class="cmp"><table>
+      <tr><th>Produit</th><th>DCI</th><th>Labo</th><th>Prix</th><th>Priorité</th><th>℞</th><th>Motif</th><th>Gestes</th><th>Pharm.</th></tr>
+      ${L.map((p,i)=>`<tr data-id="${p.id}">
+        <td class="n"><span class="rank">${i+1}</span>${esc(p.nom)}</td>
+        <td>${esc(p.dci||"—")}</td><td>${esc(p.labo||"—")}</td>
+        <td>${p.prix?p.prix+" F":"—"}</td>
+        <td><span class="stars">${stars(p.etoiles)}</span></td>
+        <td>${nbRx(p)||"—"}</td>
+        <td>${p.motif?esc(p.motif.slice(0,60)):'<span style="color:var(--wait);font-weight:700">non noté</span>'}</td>
+        <td>${(p.gestes||[]).length?`<span class="tag gift">🎁 ${(p.gestes||[]).length}</span>`:"—"}</td>
+        <td>${dispoOf(p)||"—"}</td></tr>`).join("")}
+    </table></div>
+    <div class="hint">Classement par priorité, puis prix croissant. La colonne « Motif » doit répondre seule à la question : pourquoi celui-ci plutôt qu'un autre ?</div>`;
+  $("cmpSel").onchange=e=>{localStorage.setItem("cmpClasse",e.target.value);renderCmp()};
+  m.querySelectorAll("tr[data-id]").forEach(r=>r.onclick=()=>openDetail(r.dataset.id));
+}
+
+/* ---------- Bilan ---------- */
+function bars(title,obj,cls){
+  const k=Object.keys(obj).filter(x=>obj[x]).sort((a,b)=>obj[b]-obj[a]).slice(0,8);
+  if(!k.length) return "";
+  const mx=Math.max(...k.map(x=>obj[x]));
+  return `<div class="bars ${cls||""}"><div class="grouphead" style="margin-top:0">${title}</div>
+   ${k.map(x=>`<div class="bar"><div class="t"><span>${esc(x)}</span><b>${obj[x]}</b></div>
+   <div class="g"><i style="width:${obj[x]/mx*100}%"></i></div></div>`).join("")}</div>`;
+}
+function renderBilan(){
+  const m=$("main");
+  const cnt=f=>ALL.reduce((o,p)=>{const k=p[f]||"Non renseigné";o[k]=(o[k]||0)+1;return o},{});
+  const gPar=f=>ALL.reduce((o,p)=>{const k=p[f]||"Non renseigné";o[k]=(o[k]||0)+(p.gestes||[]).length;return o},{});
+  const rPar=f=>ALL.reduce((o,p)=>{const k=p[f]||"Non renseigné";o[k]=(o[k]||0)+nbRx(p);return o},{});
+  const totG=ALL.reduce((n,p)=>n+(p.gestes||[]).length,0);
+  const totR=ALL.reduce((n,p)=>n+nbRx(p),0);
+  const flags=ALL.filter(alerte);
+  const G1=gPar("labo"), R1=rPar("labo");
+  const labos=[...new Set([...Object.keys(G1),...Object.keys(R1)])]
+    .filter(l=>G1[l]||R1[l]).sort((a,b)=>(R1[b]||0)-(R1[a]||0));
+  m.innerHTML=`<div class="kpis">
+      <div class="kpi"><b>${ALL.length}</b><span>Produits recensés</span></div>
+      <div class="kpi"><b>${totR}</b><span>Prescriptions notées</span></div>
+      <div class="kpi"><b>${new Set(ALL.map(p=>p.delegue).filter(Boolean)).size}</b><span>Délégués</span></div>
+      <div class="kpi"><b>${totG}</b><span>Gestes reçus</span></div>
+    </div>
+    ${flags.length?`<div class="alert"><b>${flags.length} produit${flags.length>1?"s":""} à revoir</b>
+      Priorité élevée et gestes reçus, mais aucun motif noté : ${flags.map(p=>esc(p.nom)).join(", ")}.</div>`:""}
+    ${labos.length?`<div class="grouphead">Gestes reçus / prescriptions</div>
+      <div class="cmp"><table style="min-width:0">
+        <tr><th>Laboratoire</th><th>Gestes</th><th>℞ notées</th></tr>
+        ${labos.map(l=>`<tr><td class="n">${esc(l)}</td>
+          <td>${G1[l]?`<span class="tag gift">🎁 ${G1[l]}</span>`:"—"}</td>
+          <td>${R1[l]?`<span class="tag rx">℞ ${R1[l]}</span>`:"—"}</td></tr>`).join("")}
+      </table></div>
+      <div class="hint">La question utile : les labos qui vous offrent le plus sont-ils ceux que vous prescrivez le plus ?</div>`:""}
+    ${bars("Prescriptions par produit",ALL.reduce((o,p)=>{if(nbRx(p))o[p.nom]=nbRx(p);return o},{}))}
+    ${bars("Par classe",cnt("classe"))}
+    ${bars("Gestes par délégué",gPar("delegue"),"gift")}
+    ${bars("Par statut",cnt("statut"))}`;
+}
+
+/* ---------- Données ---------- */
+function renderData(){
+  $("main").innerHTML=`
+    <div class="grouphead" style="margin-top:0">Prise en main</div>
+    <button class="btn ghost" id="tutoBtn" style="margin-top:0;text-align:left">📖 Comment utiliser l'application</button>
+    <div class="grouphead">Sauvegarde</div>
+    <div class="hint">Tout est stocké sur ce téléphone uniquement. Exportez régulièrement : le fichier contient produits, pharmacies et photos.</div>
+    <button class="btn" id="exp">Exporter la sauvegarde (.json)</button>
+    <button class="btn ghost" id="expcsv">Exporter la liste des produits (.csv)</button>
+    <button class="btn ghost" id="expg">Exporter le journal des gestes (.csv)</button>
+    <button class="btn ghost" id="exprx">Exporter le journal des prescriptions (.csv)</button>
+    <button class="btn ghost" id="impBtn">Restaurer une sauvegarde</button>
+    <input type="file" id="impIn" accept="application/json" hidden>
+    <div class="grouphead">Zone sensible</div>
+    <button class="btn red" id="wipe">Tout effacer</button>
+    <div class="hint" style="margin-top:22px;text-align:center">VisiteMed v4 · by THE SHIELD · Côte d'Ivoire</div>`;
+  const dl=(data,type,name)=>{const b=new Blob([data],{type});const a=document.createElement("a");
+    a.href=URL.createObjectURL(b);a.download=name;a.click();};
+  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  $("exp").onclick=()=>dl(JSON.stringify({produits:ALL,pharmacies:PHARM}),"application/json","visitemed-"+today()+".json");
+  $("expcsv").onclick=()=>{
+    const h=["Nom","DCI","Classe","Forme","Dosage","Laboratoire","Délégué","Téléphone","Prix","Priorité","Motif","Statut","Date","Prescriptions","Gestes","Pharmacies dispo","Indications","Posologie","Avis"];
+    const rows=ALL.map(p=>[p.nom,p.dci,p.classe,p.forme,p.dosage,p.labo,p.delegue,p.tel,p.prix,p.etoiles,p.motif,p.statut,p.date,
+      nbRx(p),(p.gestes||[]).length,(p.dispos||[]).filter(d=>d.statut==="Disponible").map(d=>d.nom).join(" / "),
+      p.indications,p.posologie,p.avis].map(q).join(";"));
+    dl("\ufeff"+[h.join(";"),...rows].join("\n"),"text/csv","visitemed-produits.csv");};
+  $("expg").onclick=()=>{
+    const rows=[];
+    ALL.forEach(p=>(p.gestes||[]).forEach(g=>rows.push([g.date,p.nom,p.labo,p.delegue,g.type,g.detail,g.valeur].map(q).join(";"))));
+    if(!rows.length){toast("Aucun geste enregistré");return}
+    rows.sort();
+    dl("\ufeff"+[["Date","Produit","Laboratoire","Délégué","Type","Détail","Valeur estimée"].join(";"),...rows].join("\n"),
+       "text/csv","visitemed-gestes.csv");};
+  $("exprx").onclick=()=>{
+    const rows=[];
+    ALL.forEach(p=>(p.rx||[]).forEach(x=>rows.push([x.slice(0,10),x.slice(11,16),p.nom,p.dci,p.classe,p.labo].map(q).join(";"))));
+    if(!rows.length){toast("Aucune prescription notée");return}
+    rows.sort();
+    dl("\ufeff"+[["Date","Heure","Produit","DCI","Classe","Laboratoire"].join(";"),...rows].join("\n"),
+       "text/csv","visitemed-prescriptions.csv");};
+  $("impBtn").onclick=()=>$("impIn").click();
+  $("impIn").onchange=async e=>{
+    const f=e.target.files[0];if(!f)return;
+    try{const j=JSON.parse(await f.text());
+      const prods=Array.isArray(j)?j:(j.produits||[]);
+      for(const p of prods) if(p&&p.id) await put("produits",p);
+      for(const ph of (j.pharmacies||[])) if(ph&&ph.nom) await put("pharmacies",ph);
+      await refresh(); toast(prods.length+" produits restaurés");
+    }catch(err){toast("Fichier illisible")}};
+  $("wipe").onclick=async()=>{
+    if(!confirm("⚠️ ATTENTION\n\nCette action efface DÉFINITIVEMENT tous vos produits, pharmacies, gestes et prescriptions. Elle est irréversible.\n\nPensez à exporter une sauvegarde avant.\n\nConfirmer la suppression totale ?"))return;
+    for(const p of ALL) await del("produits",p.id);
+    for(const ph of PHARM) await del("pharmacies",ph.nom);
+    await refresh(); toast("Base vidée");};
+  $("tutoBtn").onclick=openTuto;
+}
+
+/* ---------- Rendu global ---------- */
+function render(){
+  const isL = tab==="liste";
+  $("filters").style.display = isL?"block":"none";
+  $("searchrow").style.display = isL?"flex":"none";
+  if(isL) renderListe();
+  else if(tab==="pharm") renderPharm();
+  else if(tab==="cmp") renderCmp();
+  else if(tab==="bilan") renderBilan();
+  else renderData();
+}
+function renderChips(){
+  const cs=[...new Set(ALL.map(p=>p.classe).filter(Boolean))].sort();
+  $("chipClasses").innerHTML=`<button class="chip ${filtClasse?"":"on"}" data-c="">Toutes (${ALL.length})</button>`+
+    cs.map(c=>`<button class="chip ${filtClasse===c?"on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  $("chipClasses").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{filtClasse=b.dataset.c;renderChips();renderListe();});
+}
+function renderLists(){
+  $("dlLabo").innerHTML=[...new Set(ALL.map(p=>p.labo).filter(Boolean))].map(v=>`<option value="${esc(v)}">`).join("");
+  $("dlDel").innerHTML=[...new Set(ALL.map(p=>p.delegue).filter(Boolean))].map(v=>`<option value="${esc(v)}">`).join("");
+  $("dlPharm").innerHTML=PHARM.map(p=>`<option value="${esc(p.nom)}">`).join("");
+}
+async function refresh(){
+  ALL=await getAll("produits"); PHARM=await getAll("pharmacies");
+  renderChips(); renderLists(); render();
+}
+
+/* ---------- Détail produit ---------- */
+function openDetail(id){
+  const p=ALL.find(x=>x.id===id); if(!p) return;
+  editId=id;
+  $("detTitle").textContent=p.nom;
+  const line=(l,v)=>v?`<div><span class="k">${l}</span><b>${esc(v)}</b></div>`:"";
+  const D=(p.dispos||[]), G=(p.gestes||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const R=(p.rx||[]).slice().sort().reverse();
+  $("detBody").innerHTML=`
+    ${p.photos&&p.photos.length?`<div class="gal">${p.photos.map(s=>`<img src="${s}" alt="">`).join("")}</div>`:""}
+    ${alerte(p)?`<div class="alert"><b>Motif de priorité non noté</b>Ce produit est classé prioritaire et des gestes ont été reçus. Notez la raison clinique qui justifie ce choix.</div>`:""}
+    <div class="dl">
+      <div><span class="k">Priorité</span><b class="stars" style="font-size:16px">${stars(p.etoiles)}</b></div>
+      <div><span class="k">Statut</span><b><span class="stat" style="background:${STATUTS[p.statut]}">${esc(p.statut)}</span></b></div>
+      ${line("Motif",p.motif)}
+      ${line("DCI",p.dci)}${line("Classe",p.classe)}${line("Forme",p.forme)}${line("Dosage",p.dosage)}
+      ${line("Prix",p.prix?p.prix+" FCFA":"")}
+    </div>
+    <button class="rxbig" id="rxAdd">℞ &nbsp;J'ai prescrit ce produit</button>
+    <div class="rxlast">${R.length?`${R.length} prescription${R.length>1?"s":""} notée${R.length>1?"s":""} · dernière le ${fdt(R[0])}`:"Aucune prescription notée pour l'instant"}</div>
+    ${R.length?`<div class="dl">${R.slice(0,8).map(x=>`
+      <div class="xrow"><span>${fdt(x)}</span><button data-rx="${x}">×</button></div>`).join("")}
+      ${R.length>8?`<div class="xrow" style="color:var(--ink-2)"><span>+ ${R.length-8} plus anciennes</span></div>`:""}</div>`:""}
+
+    <div class="grouphead">Où le trouver</div>
+    ${D.length?`<div class="plist">${D.map(d=>`
+      <div class="prow">
+        <div class="pn"><b>${esc(d.nom)}</b>
+          <i><span class="stat" style="background:${DISPO[d.statut]||"var(--out)"}">${esc(d.statut)}</span>
+          ${d.commune?" "+esc(d.commune):""}${d.prix?" · "+d.prix+" F":""}${d.date?" · vu le "+fdate(d.date):""}</i></div>
+        <div class="chk">
+          <button class="y" data-ph="${esc(d.nom)}" data-v="Disponible">Il y en a</button>
+          <button class="n" data-ph="${esc(d.nom)}" data-v="Rupture">Rupture</button>
+        </div>
+      </div>`).join("")}</div>
+      <div class="hint">Un appui met à jour l'état et enregistre la date du contrôle.</div>`
+    :`<div class="hint">Aucune pharmacie renseignée pour ce produit.</div>`}
+    <div class="grouphead">Journal des gestes</div>
+    ${G.length?`<div class="tl">${G.map(g=>`<div class="ev">
+        <div class="d">${fdate(g.date)}</div>
+        <div class="ty">${esc(g.type)}${g.valeur?" · "+esc(g.valeur)+" F":""}</div>
+        ${g.detail?`<div class="de">${esc(g.detail)}</div>`:""}
+      </div>`).join("")}</div>`
+    :`<div class="hint">Aucun geste noté pour ce produit.</div>`}
+    <div class="dl">
+      ${line("Laboratoire",p.labo)}${line("Délégué",p.delegue)}${line("Téléphone",p.tel)}
+      ${line("Visite",fdate(p.date))}
+    </div>
+    <div class="dl">
+      ${line("Indications",p.indications)}${line("Posologie",p.posologie)}${line("Mon avis",p.avis)}
+    </div>
+    ${p.tel?`<a class="call" href="tel:${esc(tel(p.tel))}">Appeler ${esc(p.delegue||"le délégué")}</a>`:""}`;
+  $("detBody").querySelectorAll(".gal img").forEach(im=>im.onclick=()=>{
+    $("viewerImg").src=im.src;$("viewer").classList.add("open")});
+  $("rxAdd").onclick=async()=>{await prescrire(id); openDetail(id);};
+  $("detBody").querySelectorAll(".xrow button[data-rx]").forEach(b=>b.onclick=()=>{
+    if(confirm("Retirer cette prescription du journal ?")) annulerRx(id,b.dataset.rx);});
+  $("detBody").querySelectorAll(".chk button").forEach(b=>b.onclick=()=>verifDispo(id,b.dataset.ph,b.dataset.v));
+  $("detSheet").classList.add("open"); window.scrollTo(0,0);
+}
+$("viewer").onclick=()=>$("viewer").classList.remove("open");
+$("detClose").onclick=()=>$("detSheet").classList.remove("open");
+$("detEdit").onclick=()=>{$("detSheet").classList.remove("open");openForm(editId)};
+
+/* ---------- Formulaire ---------- */
+function drawPhotos(){
+  $("photos").innerHTML=draftPhotos.map((s,i)=>
+    `<div class="photobox"><img src="${s}" alt=""><button class="x" data-i="${i}">×</button></div>`).join("")+
+    (draftPhotos.length<4?`<button class="addphoto" id="addPhoto">＋</button>`:"");
+  $("photos").querySelectorAll(".x").forEach(b=>b.onclick=()=>{draftPhotos.splice(+b.dataset.i,1);drawPhotos()});
+  const a=$("addPhoto"); if(a) a.onclick=()=>$("camIn").click();
+}
+function drawStars(){
+  $("starpick").innerHTML=[1,2,3,4,5].map(i=>`<button class="${i<=draftStars?"on":""}" data-s="${i}">★</button>`).join("");
+  $("starpick").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    const v=+b.dataset.s; draftStars=(v===draftStars)?0:v; drawStars();});
+}
+function bindSub(boxId,arr,redraw){
+  const el=$(boxId);
+  el.querySelectorAll("[data-f]").forEach(inp=>{
+    const i=+inp.dataset.i, f=inp.dataset.f;
+    inp.oninput=()=>{
+      arr[i][f]=inp.value;
+      if(f==="nom"){
+        const ph=PHARM.find(x=>x.nom===inp.value);
+        if(ph){arr[i].commune=ph.commune||"";arr[i].tel=ph.tel||"";redraw();}
+      }};
+    inp.onchange=()=>{arr[i][f]=inp.value};
+  });
+  el.querySelectorAll(".del").forEach(b=>b.onclick=()=>{arr.splice(+b.dataset.i,1);redraw()});
+}
+function drawDispos(){
+  $("dispos").innerHTML=draftDispos.map((d,i)=>`
+    <div class="subcard">
+      <button class="del" data-i="${i}">×</button>
+      <label>Pharmacie</label>
+      <input type="text" list="dlPharm" data-i="${i}" data-f="nom" value="${esc(d.nom)}" placeholder="Ex : Pharmacie du Rond-Point">
+      <div class="r">
+        <div><label>Commune / quartier</label><input type="text" data-i="${i}" data-f="commune" value="${esc(d.commune)}" placeholder="Yopougon"></div>
+        <div><label>Téléphone</label><input type="tel" data-i="${i}" data-f="tel" value="${esc(d.tel)}" placeholder="27 ..."></div>
+      </div>
+      <div class="r">
+        <div><label>Disponibilité</label><select data-i="${i}" data-f="statut">
+          ${Object.keys(DISPO).map(s=>`<option ${s===d.statut?"selected":""}>${s}</option>`).join("")}</select></div>
+        <div><label>Prix constaté</label><input type="number" inputmode="numeric" data-i="${i}" data-f="prix" value="${d.prix??""}" placeholder="FCFA"></div>
+      </div>
+      <label>Vérifié le</label>
+      <input type="date" data-i="${i}" data-f="date" value="${d.date||today()}">
+    </div>`).join("");
+  bindSub("dispos",draftDispos,drawDispos);
+}
+function drawGestes(){
+  $("gestes").innerHTML=draftGestes.map((g,i)=>`
+    <div class="subcard">
+      <button class="del" data-i="${i}">×</button>
+      <div class="r">
+        <div><label>Date</label><input type="date" data-i="${i}" data-f="date" value="${g.date||today()}"></div>
+        <div><label>Type</label><select data-i="${i}" data-f="type">
+          ${GESTES.map(t=>`<option ${t===g.type?"selected":""}>${t}</option>`).join("")}</select></div>
+      </div>
+      <label>Quoi exactement</label>
+      <input type="text" data-i="${i}" data-f="detail" value="${esc(g.detail)}" placeholder="Ex : 1 mixeur, 20 boîtes, déjeuner…">
+      <label>Valeur estimée (FCFA, facultatif)</label>
+      <input type="number" inputmode="numeric" data-i="${i}" data-f="valeur" value="${g.valeur??""}" placeholder="25000">
+    </div>`).join("");
+  bindSub("gestes",draftGestes,drawGestes);
+}
+$("addDispo").onclick=()=>{draftDispos.push({nom:"",commune:"",tel:"",statut:"Disponible",prix:"",date:today()});drawDispos();};
+$("addGeste").onclick=()=>{draftGestes.push({id:uid(),date:today(),type:"Échantillons",detail:"",valeur:""});drawGestes();};
+
+async function addFiles(files){
+  for(const f of files){ if(draftPhotos.length>=4) break; draftPhotos.push(await compress(f)); }
+  drawPhotos();
+}
+$("camIn").onchange=e=>{addFiles(e.target.files);e.target.value=""};
+$("fileIn").onchange=e=>{addFiles(e.target.files);e.target.value=""};
+$("pickGal").onclick=()=>$("fileIn").click();
+
+function openForm(id){
+  editId=id||null;
+  const p=id?ALL.find(x=>x.id===id):null;
+  $("formTitle").textContent=p?"Modifier le produit":"Nouveau produit";
+  $("f_classe").innerHTML=CLASSES.map(c=>`<option>${c}</option>`).join("");
+  $("f_forme").innerHTML=`<option value=""></option>`+FORMES.map(c=>`<option>${c}</option>`).join("");
+  $("f_nom").value=p?p.nom:""; $("f_dci").value=p?(p.dci||""):"";
+  $("f_classe").value=p&&p.classe?p.classe:"Antibiotiques"; $("f_forme").value=p?(p.forme||""):"";
+  $("f_dosage").value=p?(p.dosage||""):""; $("f_labo").value=p?(p.labo||""):"";
+  $("f_delegue").value=p?(p.delegue||""):""; $("f_tel").value=p?(p.tel||""):"";
+  $("f_prix").value=p?(p.prix||""):""; $("f_date").value=p&&p.date?p.date:today();
+  $("f_indic").value=p?(p.indications||""):""; $("f_poso").value=p?(p.posologie||""):"";
+  $("f_motif").value=p?(p.motif||""):""; $("f_statut").value=p&&p.statut?p.statut:"À évaluer";
+  $("f_note").value=p?(p.avis||""):"";
+  draftPhotos=p?[...(p.photos||[])]:[]; draftStars=p?(p.etoiles||0):0;
+  draftGestes=p?JSON.parse(JSON.stringify(p.gestes||[])):[];
+  draftDispos=p?JSON.parse(JSON.stringify(p.dispos||[])):[];
+  drawPhotos(); drawStars(); drawGestes(); drawDispos();
+  $("delBtn").style.display=p?"block":"none";
+  $("formSheet").classList.add("open"); window.scrollTo(0,0);
+}
+$("formClose").onclick=()=>$("formSheet").classList.remove("open");
+
+$("save").onclick=async()=>{
+  const nom=$("f_nom").value.trim();
+  if(!nom){toast("Le nom commercial est obligatoire");$("f_nom").focus();return}
+  const dispos=draftDispos.filter(d=>(d.nom||"").trim()).map(d=>({...d,nom:d.nom.trim()}));
+  const anc=editId?ALL.find(x=>x.id===editId):null;
+  const p={
+    id:editId||("p"+uid()), rx:(anc&&anc.rx)||[],
+    nom, dci:$("f_dci").value.trim(), classe:$("f_classe").value, forme:$("f_forme").value,
+    dosage:$("f_dosage").value.trim(), labo:$("f_labo").value.trim(), delegue:$("f_delegue").value.trim(),
+    tel:$("f_tel").value.trim(), prix:$("f_prix").value?+$("f_prix").value:null, date:$("f_date").value,
+    indications:$("f_indic").value.trim(), posologie:$("f_poso").value.trim(),
+    etoiles:draftStars, motif:$("f_motif").value.trim(), statut:$("f_statut").value,
+    avis:$("f_note").value.trim(), photos:draftPhotos,
+    gestes:draftGestes.filter(g=>g.type), dispos, maj:Date.now()
+  };
+  await put("produits",p);
+  for(const d of dispos) await put("pharmacies",{nom:d.nom,commune:d.commune||"",tel:d.tel||""});
+  $("formSheet").classList.remove("open"); await refresh(); toast("Produit enregistré");
+};
+$("delBtn").onclick=async()=>{
+  if(!editId||!confirm("Supprimer ce produit ?"))return;
+  await del("produits",editId); $("formSheet").classList.remove("open"); await refresh(); toast("Produit supprimé");
+};
+
+document.querySelectorAll("nav button[data-tab]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); tab=b.dataset.tab; window.scrollTo(0,0); render();
+});
+$("navAdd").onclick=()=>openForm(null);
+$("gearBtn").onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));tab="data";window.scrollTo(0,0);render();};
+function openTuto(){$("tutoSheet").classList.add("open");window.scrollTo(0,0);}
+$("tutoClose").onclick=()=>$("tutoSheet").classList.remove("open");
+$("tutoOk").onclick=()=>$("tutoSheet").classList.remove("open");
+setTimeout(()=>{const s=$("splash");if(s){s.classList.add("hide");setTimeout(()=>s.remove(),600);}},3500);
+$("q").oninput=renderListe;
+$("sort").onchange=renderListe;
+$("group").onchange=renderListe;
+
+openDB().then(refresh);
+if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body>
+</html>
