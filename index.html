@@ -285,6 +285,7 @@ td.n{font-weight:700}
     <button id="formClose">Fermer</button>
   </div>
   <div class="body">
+    <div id="visitBar"></div>
     <label>Photos (boîte, notice, posologie)</label>
     <div class="photos" id="photos"></div>
     <input type="file" id="camIn" accept="image/*" capture="environment" hidden>
@@ -344,6 +345,7 @@ td.n{font-weight:700}
     <textarea id="f_note" placeholder="Tolérance, retours des patients, disponibilité, prix vs concurrent…"></textarea>
 
     <button class="btn" id="save">Enregistrer</button>
+    <button class="btn ghost" id="visitEnd" style="display:none">Terminer la visite</button>
     <button class="btn red" id="delBtn" style="display:none">Supprimer ce produit</button>
   </div>
 </div>
@@ -369,11 +371,15 @@ td.n{font-weight:700}
   <div class="sheethead"><h2>Comment ça marche</h2><button id="tutoClose">Fermer</button></div>
   <div class="body">
     <div class="hint" style="margin:0 0 16px">VisiteMed recense chaque produit présenté par un délégué, permet de comparer par classe, et trace honnêtement gestes reçus et prescriptions.</div>
-    <div class="tstep"><div class="n">1</div><div><b>Le délégué passe : capturez</b><p>Appuyez sur le bouton + au centre. Photographiez d'abord la boîte, puis remplissez nom, DCI, classe et labo — en 30 secondes.</p></div></div>
-    <div class="tstep"><div class="n">2</div><div><b>Priorité et motif</b><p>Mettez des étoiles et surtout écrivez pourquoi ce produit mérite d'être prescrit : efficacité, tolérance, prix, disponibilité.</p></div></div>
-    <div class="tstep"><div class="n">3</div><div><b>Tracez les gestes reçus</b><p>Échantillons, cadeau, repas, invitation… notez-les dès la visite, avec leur valeur. Ils apparaissent dans la frise de la fiche.</p></div></div>
-    <div class="tstep"><div class="n">4</div><div><b>Prescrivez en un appui</b><p>À chaque prescription, appuyez sur ℞+1 sur la carte du produit. Le compteur et la date se mettent à jour seuls.</p></div></div>
-    <div class="tstep"><div class="n">5</div><div><b>Comparez et arbitrez</b><p>L'onglet Comparer classe les produits d'une même classe par priorité puis prix. Le Bilan met face à face gestes reçus et prescriptions par labo.</p></div></div>
+    <div class="tstep"><div class="n">1</div><div><b>Le délégué passe : capturez</b><p>Appuyez sur le bouton + au centre. Photographiez d'abord la boîte, puis remplissez le nom, la classe et le labo — en 30 secondes. Le reste peut se compléter plus tard.</p></div></div>
+    <div class="tstep"><div class="n">2</div><div><b>Plusieurs produits d'un même délégué ? Mode Visite</b><p>En haut de la fiche, cochez « Visite : enchaîner plusieurs produits ». Après le 1ᵉʳ produit, le délégué, le labo et le téléphone restent verrouillés en haut (bandeau vert 🔒) et le bouton devient « Ajouter ce produit + ». Vous enchaînez sans jamais retaper le délégué. « Terminer la visite » pour clôturer.</p></div></div>
+    <div class="tstep"><div class="n">3</div><div><b>Ça se remplit tout seul</b><p>Dès que vous tapez un délégué déjà connu, son laboratoire et son téléphone s'ajoutent automatiquement. Idem pour les pharmacies déjà saisies.</p></div></div>
+    <div class="tstep"><div class="n">4</div><div><b>Plusieurs présentations</b><p>Un même produit peut avoir plusieurs formes/dosages (comprimé, sirop…). Ajoutez-les avec « + Ajouter une présentation ».</p></div></div>
+    <div class="tstep"><div class="n">5</div><div><b>Priorité et motif</b><p>Mettez des étoiles et surtout écrivez pourquoi ce produit mérite d'être prescrit : efficacité, tolérance, prix, disponibilité.</p></div></div>
+    <div class="tstep"><div class="n">6</div><div><b>Tracez les gestes reçus</b><p>Échantillons, cadeau, repas, invitation… notez-les dès la visite, avec leur valeur. Ils apparaissent dans la frise de la fiche.</p></div></div>
+    <div class="tstep"><div class="n">7</div><div><b>Prescrivez en un appui</b><p>À chaque prescription, appuyez sur ℞+1 sur la carte du produit. Le compteur et la date se mettent à jour seuls.</p></div></div>
+    <div class="tstep"><div class="n">8</div><div><b>Comparez et arbitrez</b><p>L'onglet Comparer classe les produits d'une même classe par priorité puis prix. Le Bilan met face à face gestes reçus et prescriptions par labo.</p></div></div>
+    <div class="tstep"><div class="n">9</div><div><b>Sauvegardez</b><p>Dans les réglages (☰), exportez régulièrement un fichier .json. Vos données restent sur ce téléphone, hors ligne.</p></div></div>
     <div class="alert" style="margin-top:6px"><b>Le cœur : rester honnête</b>Si un produit est prioritaire, qu'on vous a fait des cadeaux, mais qu'aucun motif clinique n'est noté, VisiteMed vous alerte. Notez toujours pourquoi vous priorisez.</div>
     <button class="btn" id="tutoOk">J'ai compris</button>
   </div>
@@ -421,7 +427,7 @@ const STATUTS = {"Retenu":"var(--ok)","À l'essai":"var(--test)","À évaluer":"
 const DISPO = {"Disponible":"var(--ok)","Sur commande":"var(--test)","Rupture":"var(--wait)","Non référencé":"var(--out)"};
 const GESTES = ["Échantillons","Cadeau / objet","Repas / invitation","Formation / congrès","Matériel de cabinet","Appui financier","Autre"];
 
-let DB, ALL=[], PHARM=[], filtClasse="", editId=null, tab="liste", searching=false, sortMode="prio";
+let DB, ALL=[], PHARM=[], filtClasse="", editId=null, tab="liste", searching=false, sortMode="prio", visit=null;
 const SORTS=[["prio","Priorité"],["rx","Plus prescrit"],["date","Récent"],["nom","A→Z"]];
 const TILE=["#FFF0E6","#EAF7F4","#EEF2FF","#FCF0F7","#F1F6E9","#FFF6E0"];
 function tintFor(s){let x=0;for(const ch of (s||"")) x+=ch.charCodeAt(0);return TILE[x%TILE.length];}
@@ -889,7 +895,8 @@ $("camIn").onchange=e=>{addFiles(e.target.files);e.target.value=""};
 $("fileIn").onchange=e=>{addFiles(e.target.files);e.target.value=""};
 $("pickGal").onclick=()=>$("fileIn").click();
 
-function openForm(id){
+function openForm(id, keepVisit){
+  if(!keepVisit) visit=null;
   editId=id||null;
   const p=id?ALL.find(x=>x.id===id):null;
   $("formTitle").textContent=p?"Modifier le produit":"Nouveau produit";
@@ -900,9 +907,9 @@ function openForm(id){
   $("addPres").onclick=()=>addPresRow("","");
   $("f_nom").value=p?p.nom:""; $("f_dci").value=p?(p.dci||""):"";
   $("f_classe").value=p&&p.classe?p.classe:"Antibiotiques";
-  $("f_labo").value=p?(p.labo||""):"";
-  $("f_delegue").value=p?(p.delegue||""):""; $("f_tel").value=p?(p.tel||""):"";
-  $("f_prix").value=p?(p.prix||""):""; $("f_date").value=p&&p.date?p.date:today();
+  $("f_labo").value=p?(p.labo||""):(visit?visit.labo:"");
+  $("f_delegue").value=p?(p.delegue||""):(visit?visit.delegue:""); $("f_tel").value=p?(p.tel||""):(visit?visit.tel:"");
+  $("f_prix").value=p?(p.prix||""):""; $("f_date").value=p&&p.date?p.date:(visit?visit.date:today());
   $("f_indic").value=p?(p.indications||""):""; $("f_poso").value=p?(p.posologie||""):"";
   $("f_motif").value=p?(p.motif||""):""; $("f_statut").value=p&&p.statut?p.statut:"À évaluer";
   $("f_note").value=p?(p.avis||""):"";
@@ -911,9 +918,51 @@ function openForm(id){
   draftDispos=p?JSON.parse(JSON.stringify(p.dispos||[])):[];
   drawPhotos(); drawStars(); drawGestes(); drawDispos();
   $("delBtn").style.display=p?"block":"none";
+  renderVisitBar();
   $("formSheet").classList.add("open"); window.scrollTo(0,0);
 }
-$("formClose").onclick=()=>$("formSheet").classList.remove("open");
+
+/* ---------- 1c : auto-complétion délégué / labo ---------- */
+function delegateMap(){
+  const m={};
+  ALL.forEach(p=>{ const k=(p.delegue||"").trim(); if(!k) return;
+    if(!m[k]) m[k]={labo:p.labo||"",tel:p.tel||""};
+    else { if(!m[k].labo&&p.labo) m[k].labo=p.labo; if(!m[k].tel&&p.tel) m[k].tel=p.tel; } });
+  return m;
+}
+function laboMap(){
+  const m={};
+  ALL.forEach(p=>{ const k=(p.labo||"").trim(); if(!k||!p.delegue) return; if(!m[k]) m[k]=new Set(); m[k].add(p.delegue); });
+  const o={}; for(const k in m){ if(m[k].size===1) o[k]=[...m[k]][0]; } return o;
+}
+
+/* ---------- 1b : mode Visite ---------- */
+function lockVisitFields(on){
+  ["f_delegue","f_labo","f_tel","f_date"].forEach(id=>{ const el=$(id); el.readOnly=on;
+    el.style.background=on?"#EAF7F4":""; el.style.color=on?"#0C6B60":""; el.style.fontWeight=on?"700":""; });
+}
+function renderVisitBar(){
+  const bar=$("visitBar");
+  if(visit){
+    bar.innerHTML=`<div style="display:flex;align-items:center;gap:10px;background:#EAF7F4;border:1px solid #CDEDE6;border-radius:12px;padding:11px 13px;margin-bottom:6px">
+      <span style="font-size:15px">🔒</span>
+      <div style="flex:1;min-width:0"><b style="color:#0C6B60;font-size:13.5px;display:block;font-family:Sora">${esc(visit.delegue||"Visite")}${visit.labo?" · "+esc(visit.labo):""}</b>
+      <span style="font-size:11px;color:#3E9488">Visite en cours · ${visit.count} produit${visit.count>1?"s":""} ajouté${visit.count>1?"s":""}</span></div>
+      <button type="button" id="visitChange" style="background:#fff;border:1px solid #CDEDE6;color:#0C6B60;font-weight:700;font-size:11.5px;padding:7px 10px;border-radius:9px">Changer</button></div>`;
+    lockVisitFields(true);
+    $("save").textContent="Ajouter ce produit ＋";
+    $("visitEnd").style.display="block";
+    $("visitChange").onclick=()=>{ visit=null; renderVisitBar(); };
+  } else {
+    bar.innerHTML=`<label style="display:flex;gap:10px;align-items:center;background:#F1E9FC;border:1px solid #E4D5F7;border-radius:12px;padding:11px 13px;margin-bottom:6px;font-size:12.5px;font-weight:600;color:#6D28D9;cursor:pointer">
+      <input type="checkbox" id="visitChk" style="width:18px;height:18px;flex:0 0 18px;accent-color:#7C3AED"> Visite : enchaîner plusieurs produits du même délégué</label>`;
+    lockVisitFields(false);
+    $("save").textContent=editId?"Enregistrer":"Enregistrer";
+    $("visitEnd").style.display="none";
+  }
+}
+$("formClose").onclick=()=>{visit=null;$("formSheet").classList.remove("open");};
+$("visitEnd").onclick=async()=>{visit=null;$("formSheet").classList.remove("open");await refresh();toast("Visite terminée");};
 
 $("save").onclick=async()=>{
   const nom=$("f_nom").value.trim();
@@ -936,8 +985,19 @@ $("save").onclick=async()=>{
   };
   await put("produits",p);
   for(const d of dispos) await put("pharmacies",{nom:d.nom,commune:d.commune||"",tel:d.tel||""});
-  $("formSheet").classList.remove("open"); await refresh(); toast("Produit enregistré");
+  const chk=$("visitChk"); const chain = !editId && (visit || (chk&&chk.checked));
+  if(chain){
+    if(!visit) visit={delegue:p.delegue,labo:p.labo,tel:p.tel,date:p.date,count:0};
+    visit.count++;
+    await refresh();
+    toast(`Produit ${visit.count} ajouté · ${visit.delegue||"visite"}`);
+    openForm(null,true);
+  } else {
+    visit=null; $("formSheet").classList.remove("open"); await refresh(); toast("Produit enregistré");
+  }
 };
+$("f_delegue").addEventListener("input",()=>{ if(visit) return; const m=delegateMap()[$("f_delegue").value.trim()]; if(m){ if(!$("f_labo").value.trim()&&m.labo)$("f_labo").value=m.labo; if(!$("f_tel").value.trim()&&m.tel)$("f_tel").value=m.tel; } });
+$("f_labo").addEventListener("input",()=>{ if(visit) return; const d=laboMap()[$("f_labo").value.trim()]; if(d&&!$("f_delegue").value.trim())$("f_delegue").value=d; });
 $("delBtn").onclick=async()=>{
   if(!editId||!confirm("Supprimer ce produit ?"))return;
   await del("produits",editId); $("formSheet").classList.remove("open"); await refresh(); toast("Produit supprimé");
