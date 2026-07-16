@@ -297,10 +297,9 @@ td.n{font-weight:700}
     <input type="text" id="f_dci" placeholder="Ex : céfixime">
     <label>Classe thérapeutique</label>
     <select id="f_classe"></select>
-    <div class="row2">
-      <div><label>Forme</label><select id="f_forme"></select></div>
-      <div><label>Dosage</label><input type="text" id="f_dosage" placeholder="200 mg, B/8"></div>
-    </div>
+    <label>Présentations (forme + dosage)</label>
+    <div id="presList"></div>
+    <button type="button" class="btn ghost" id="addPres" style="margin-top:0;padding:10px;font-size:13px">+ Ajouter une présentation</button>
     <label>Laboratoire</label>
     <input type="text" id="f_labo" list="dlLabo" placeholder="Ex : Denk, Cipla…">
     <datalist id="dlLabo"></datalist>
@@ -403,6 +402,21 @@ const CLASSES = ["Antibiotiques","Antipaludiques","Antalgiques / Antipyrétiques
 "Vitamines / Compléments","Vaccins","Pédiatrie","Phytothérapie","Autre"];
 const FORMES = ["Comprimé","Gélule","Sirop / Suspension","Sachet","Injectable","Suppositoire","Ovule",
 "Pommade / Crème","Gel","Collyre","Gouttes","Spray / Aérosol","Patch","Autre"];
+function presRowHTML(f,d){
+  return `<div class="presrow" style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+    <select class="pr_forme" style="flex:1;min-width:0"><option value=""></option>${FORMES.map(x=>`<option${x===f?" selected":""}>${x}</option>`).join("")}</select>
+    <input type="text" class="pr_dosage" placeholder="200 mg, B/8" value="${esc(d||"")}" style="flex:1;min-width:0">
+    <button type="button" class="pr_del" style="flex:0 0 34px;height:34px;border:1px solid var(--line);background:#fff;color:var(--danger);border-radius:10px;font-size:16px">×</button>
+  </div>`;
+}
+function addPresRow(f,d){
+  const w=document.createElement("div"); w.innerHTML=presRowHTML(f,d);
+  const row=w.firstChild; $("presList").appendChild(row);
+  row.querySelector(".pr_del").onclick=()=>{ if($("presList").children.length>1) row.remove(); else { row.querySelector(".pr_forme").value=""; row.querySelector(".pr_dosage").value=""; } };
+}
+function readPres(){
+  return [...$("presList").querySelectorAll(".presrow")].map(r=>({forme:r.querySelector(".pr_forme").value,dosage:r.querySelector(".pr_dosage").value.trim()})).filter(p=>p.forme||p.dosage);
+}
 const STATUTS = {"Retenu":"var(--ok)","À l'essai":"var(--test)","À évaluer":"var(--wait)","Écarté":"var(--out)"};
 const DISPO = {"Disponible":"var(--ok)","Sur commande":"var(--test)","Rupture":"var(--wait)","Non référencé":"var(--out)"};
 const GESTES = ["Échantillons","Cadeau / objet","Repas / invitation","Formation / congrès","Matériel de cabinet","Appui financier","Autre"];
@@ -751,7 +765,8 @@ function openDetail(id){
       <div><span class="k">Priorité</span><b class="stars" style="font-size:16px">${stars(p.etoiles)}</b></div>
       <div><span class="k">Statut</span><b><span class="stat" style="background:${STATUTS[p.statut]}">${esc(p.statut)}</span></b></div>
       ${line("Motif",p.motif)}
-      ${line("DCI",p.dci)}${line("Classe",p.classe)}${line("Forme",p.forme)}${line("Dosage",p.dosage)}
+      ${line("DCI",p.dci)}${line("Classe",p.classe)}
+      ${(p.presentations&&p.presentations.length)?p.presentations.map((x,i)=>line("Présentation "+(p.presentations.length>1?i+1:""),[x.forme,x.dosage].filter(Boolean).join(" — "))).join(""):line("Forme",p.forme)+line("Dosage",p.dosage)}
       ${line("Prix",p.prix?p.prix+" FCFA":"")}
     </div>
     <button class="rxbig" id="rxAdd">℞ &nbsp;J'ai prescrit ce produit</button>
@@ -879,10 +894,13 @@ function openForm(id){
   const p=id?ALL.find(x=>x.id===id):null;
   $("formTitle").textContent=p?"Modifier le produit":"Nouveau produit";
   $("f_classe").innerHTML=CLASSES.map(c=>`<option>${c}</option>`).join("");
-  $("f_forme").innerHTML=`<option value=""></option>`+FORMES.map(c=>`<option>${c}</option>`).join("");
+  $("presList").innerHTML="";
+  const pres=(p&&p.presentations&&p.presentations.length)?p.presentations:(p&&(p.forme||p.dosage)?[{forme:p.forme||"",dosage:p.dosage||""}]:[{forme:"",dosage:""}]);
+  pres.forEach(x=>addPresRow(x.forme,x.dosage));
+  $("addPres").onclick=()=>addPresRow("","");
   $("f_nom").value=p?p.nom:""; $("f_dci").value=p?(p.dci||""):"";
-  $("f_classe").value=p&&p.classe?p.classe:"Antibiotiques"; $("f_forme").value=p?(p.forme||""):"";
-  $("f_dosage").value=p?(p.dosage||""):""; $("f_labo").value=p?(p.labo||""):"";
+  $("f_classe").value=p&&p.classe?p.classe:"Antibiotiques";
+  $("f_labo").value=p?(p.labo||""):"";
   $("f_delegue").value=p?(p.delegue||""):""; $("f_tel").value=p?(p.tel||""):"";
   $("f_prix").value=p?(p.prix||""):""; $("f_date").value=p&&p.date?p.date:today();
   $("f_indic").value=p?(p.indications||""):""; $("f_poso").value=p?(p.posologie||""):"";
@@ -902,10 +920,14 @@ $("save").onclick=async()=>{
   if(!nom){toast("Le nom commercial est obligatoire");$("f_nom").focus();return}
   const dispos=draftDispos.filter(d=>(d.nom||"").trim()).map(d=>({...d,nom:d.nom.trim()}));
   const anc=editId?ALL.find(x=>x.id===editId):null;
+  const pres=readPres();
   const p={
     id:editId||("p"+uid()), rx:(anc&&anc.rx)||[],
-    nom, dci:$("f_dci").value.trim(), classe:$("f_classe").value, forme:$("f_forme").value,
-    dosage:$("f_dosage").value.trim(), labo:$("f_labo").value.trim(), delegue:$("f_delegue").value.trim(),
+    nom, dci:$("f_dci").value.trim(), classe:$("f_classe").value,
+    presentations:pres,
+    forme:[...new Set(pres.map(x=>x.forme).filter(Boolean))].join(", "),
+    dosage:pres.map(x=>x.dosage).filter(Boolean).join(" · "),
+    labo:$("f_labo").value.trim(), delegue:$("f_delegue").value.trim(),
     tel:$("f_tel").value.trim(), prix:$("f_prix").value?+$("f_prix").value:null, date:$("f_date").value,
     indications:$("f_indic").value.trim(), posologie:$("f_poso").value.trim(),
     etoiles:draftStars, motif:$("f_motif").value.trim(), statut:$("f_statut").value,
