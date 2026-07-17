@@ -339,7 +339,7 @@ td.n{font-weight:700}
     <div class="grouphead">Gestes du labo / délégué</div>
     <div id="gestes"></div>
     <button class="mini" id="addGeste">＋ Noter un geste</button>
-    <div class="hint">Échantillons, cadeaux, invitations, congrès… Chaque geste est daté. À relire avant de fixer la priorité.</div>
+    <div class="hint">Échantillons, cadeaux, invitations, congrès… Chaque geste est daté et <b>rattaché au délégué</b> : il apparaît automatiquement sur tous ses produits, y compris les nouveaux.</div>
 
     <label>Mon avis / notes</label>
     <textarea id="f_note" placeholder="Tolérance, retours des patients, disponibilité, prix vs concurrent…"></textarea>
@@ -404,7 +404,7 @@ const CLASSES = ["Antibiotiques","Antipaludiques","Antalgiques / Antipyrétiques
 "Pneumologie / Asthme","Antitussifs / Expectorants","ORL","Ophtalmologie","Dermatologie",
 "Gynécologie","Contraceptifs","Urologie","Neurologie / Psychiatrie","Antiépileptiques",
 "Anxiolytiques / Somnifères","Antidépresseurs","Rhumatologie","Antihistaminiques / Allergie",
-"Antifongiques","Antiviraux","Antiparasitaires / Vermifuges","Antianémiques / Fer",
+"Antifongiques","Antiviraux","Antiparasitaires / Vermifuges","Antiseptiques / Désinfectants","Antianémiques / Fer",
 "Vitamines / Compléments","Vaccins","Pédiatrie","Phytothérapie","Autre"];
 const FORMES = ["Comprimé","Gélule","Sirop / Suspension","Sachet","Injectable","Suppositoire","Ovule",
 "Pommade / Crème","Gel","Collyre","Gouttes","Spray / Aérosol","Patch","Autre"];
@@ -466,7 +466,17 @@ function compress(file,max=1100,q=.7){return new Promise(res=>{
     res(c.toDataURL("image/jpeg",q));};img.src=fr.result;};
   fr.readAsDataURL(file);});}
 const dispoOf=p=>(p.dispos||[]).filter(d=>d.statut==="Disponible").length;
-const alerte=p=>(p.etoiles||0)>=4 && (p.gestes||[]).length>0 && !(p.motif||"").trim();
+// Gestes attribués au délégué : agrégés sur TOUS ses produits (même les nouveaux)
+const gestesOf=p=>{
+  const d=(p.delegue||"").trim();
+  if(!d) return (p.gestes||[]).map(g=>({...g,_src:p.nom}));
+  const seen=new Set(), out=[];
+  ALL.forEach(x=>{ if((x.delegue||"").trim()!==d) return;
+    (x.gestes||[]).forEach(g=>{ const k=g.id||(g.date+"|"+g.type+"|"+(g.detail||"")+"|"+(g.valeur||""));
+      if(seen.has(k)) return; seen.add(k); out.push({...g,_src:x.nom}); }); });
+  return out;
+};
+const alerte=p=>(p.etoiles||0)>=4 && gestesOf(p).length>0 && !(p.motif||"").trim();
 const tel=t=>String(t||"").replace(/\s/g,"");
 const nbRx=p=>(p.rx||[]).length;
 const lastRx=p=>((p.rx||[]).slice().sort().pop()||"");
@@ -512,7 +522,7 @@ function filtered(){
   return L;
 }
 function cardHTML(p){
-  const c=STATUTS[p.statut]||"var(--out)", g=(p.gestes||[]).length, r=nbRx(p);
+  const c=STATUTS[p.statut]||"var(--out)", g=gestesOf(p).length, r=nbRx(p);
   const init=((p.dci||p.nom||"?").trim()[0]||"?").toUpperCase();
   return `<div class="card" data-id="${p.id}">
     <div class="tile" style="background:${tintFor(p.classe)}">${p.photos&&p.photos[0]?`<img src="${p.photos[0]}" alt="">`:init}</div>
@@ -612,7 +622,7 @@ function renderCmp(){
         <td><span class="stars">${stars(p.etoiles)}</span></td>
         <td>${nbRx(p)||"—"}</td>
         <td>${p.motif?esc(p.motif.slice(0,60)):'<span style="color:var(--wait);font-weight:700">non noté</span>'}</td>
-        <td>${(p.gestes||[]).length?`<span class="tag gift">🎁 ${(p.gestes||[]).length}</span>`:"—"}</td>
+        <td>${gestesOf(p).length?`<span class="tag gift">🎁 ${gestesOf(p).length}</span>`:"—"}</td>
         <td>${dispoOf(p)||"—"}</td></tr>`).join("")}
     </table></div>
     <div class="hint">Classement par priorité, puis prix croissant. La colonne « Motif » doit répondre seule à la question : pourquoi celui-ci plutôt qu'un autre ?</div>`;
@@ -762,7 +772,7 @@ function openDetail(id){
   editId=id;
   $("detTitle").textContent=p.nom;
   const line=(l,v)=>v?`<div><span class="k">${l}</span><b>${esc(v)}</b></div>`:"";
-  const D=(p.dispos||[]), G=(p.gestes||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const D=(p.dispos||[]), G=gestesOf(p).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   const R=(p.rx||[]).slice().sort().reverse();
   $("detBody").innerHTML=`
     ${p.photos&&p.photos.length?`<div class="gal">${p.photos.map(s=>`<img src="${s}" alt="">`).join("")}</div>`:""}
@@ -799,8 +809,9 @@ function openDetail(id){
         <div class="d">${fdate(g.date)}</div>
         <div class="ty">${esc(g.type)}${g.valeur?" · "+esc(g.valeur)+" F":""}</div>
         ${g.detail?`<div class="de">${esc(g.detail)}</div>`:""}
+        ${g._src&&g._src!==p.nom?`<div class="de" style="color:var(--gift)">Reçu via « ${esc(g._src)} » (même délégué)</div>`:""}
       </div>`).join("")}</div>`
-    :`<div class="hint">Aucun geste noté pour ce produit.</div>`}
+    :`<div class="hint">Aucun geste noté pour ce délégué.</div>`}
     <div class="dl">
       ${line("Laboratoire",p.labo)}${line("Délégué",p.delegue)}${line("Téléphone",p.tel)}
       ${line("Visite",fdate(p.date))}
