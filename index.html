@@ -397,15 +397,16 @@ td.n{font-weight:700}
 <div class="toast" id="toast"></div>
 
 <script>
-const CLASSES = ["Antibiotiques","Antipaludiques","Antalgiques / Antipyrétiques","Antalgiques opioïdes",
-"AINS","Corticoïdes","Antispasmodiques","Antiémétiques / Nausées","Antidiarrhéiques","Laxatifs",
-"Antiacides / IPP","Antihypertenseurs","Cardiologie","Anticoagulants / Hémostase","Veinotoniques",
-"Antidiabétiques","Endocrinologie / Thyroïde","Gastro-entérologie","Hépatologie",
-"Pneumologie / Asthme","Antitussifs / Expectorants","ORL","Ophtalmologie","Dermatologie",
-"Gynécologie","Contraceptifs","Urologie","Neurologie / Psychiatrie","Antiépileptiques",
-"Anxiolytiques / Somnifères","Antidépresseurs","Rhumatologie","Antihistaminiques / Allergie",
-"Antifongiques","Antiviraux","Antiparasitaires / Vermifuges","Antiseptiques / Désinfectants","Antianémiques / Fer",
-"Vitamines / Compléments","Vaccins","Pédiatrie","Phytothérapie","Autre"];
+const CLASSES = ["AINS","Antalgiques / Antipyrétiques","Antalgiques opioïdes","Anti-inflammatoires",
+"Antiacides","Antiacides / IPP","Antianémiques / Fer","Antibiotiques","Antidépresseurs","Antidiabétiques",
+"Antidiarrhéiques","Antiémétiques / Nausées","Antiépileptiques","Antifongiques","Antihistaminiques / Allergie",
+"Antihypertenseurs","Antipaludiques","Antiparasitaires / Vermifuges","Antiseptiques / Désinfectants",
+"Antispasmodiques","Antitussifs / Expectorants","Antiviraux","Anticoagulants / Hémostase",
+"Anxiolytiques / Somnifères","Cardiologie","Contraceptifs","Corticoïdes","Dermatologie",
+"Endocrinologie / Thyroïde","Gastro-entérologie","Gynécologie","Hépatologie","Laxatifs",
+"Neurologie / Psychiatrie","ORL","Ophtalmologie","Pédiatrie","Phytothérapie","Pneumologie / Asthme",
+"Rhumatologie","Urologie","Veinotoniques","Vaccins","Vitamines / Compléments","Autre"]
+  .sort((a,b)=>a==="Autre"?1:b==="Autre"?-1:a.localeCompare(b,"fr"));
 const FORMES = ["Comprimé","Gélule","Sirop / Suspension","Sachet","Injectable","Suppositoire","Ovule",
 "Pommade / Crème","Gel","Collyre","Gouttes","Spray / Aérosol","Patch","Autre"];
 function presRowHTML(f,d){
@@ -427,7 +428,7 @@ const STATUTS = {"Retenu":"var(--ok)","À l'essai":"var(--test)","À évaluer":"
 const DISPO = {"Disponible":"var(--ok)","Sur commande":"var(--test)","Rupture":"var(--wait)","Non référencé":"var(--out)"};
 const GESTES = ["Échantillons","Cadeau / objet","Repas / invitation","Formation / congrès","Matériel de cabinet","Appui financier","Autre"];
 
-let DB, ALL=[], PHARM=[], filtClasse="", editId=null, tab="liste", searching=false, sortMode="prio", visit=null;
+let DB, ALL=[], PHARM=[], filtClasse="", filtFacet="classe", editId=null, tab="liste", searching=false, sortMode="prio", visit=null;
 const SORTS=[["prio","Priorité"],["rx","Plus prescrit"],["date","Récent"],["nom","A→Z"]];
 const TILE=["#FFF0E6","#EAF7F4","#EEF2FF","#FCF0F7","#F1F6E9","#FFF6E0"];
 function tintFor(s){let x=0;for(const ch of (s||"")) x+=ch.charCodeAt(0);return TILE[x%TILE.length];}
@@ -507,7 +508,10 @@ async function verifDispo(id,nomPh,statut){
 function filtered(){
   const q=$("q").value.trim().toLowerCase();
   let L=ALL.filter(p=>{
-    if(filtClasse && p.classe!==filtClasse) return false;
+    if(filtClasse){
+      const v = filtFacet==="labo" ? (p.labo||"") : filtFacet==="delegue" ? (p.delegue||"") : (p.classe||"");
+      if(v!==filtClasse) return false;
+    }
     if(!q) return true;
     const ph=(p.dispos||[]).map(d=>d.nom).join(" ");
     return [p.nom,p.dci,p.labo,p.delegue,p.indications,p.classe,ph].join(" ").toLowerCase().includes(q);
@@ -751,9 +755,14 @@ function render(){
   else renderData();
 }
 function renderChips(){
-  const cs=[...new Set(ALL.map(p=>p.classe).filter(Boolean))].sort();
-  $("chipClasses").innerHTML=`<button class="chip ${filtClasse?"":"on"}" data-c="">Toutes (${ALL.length})</button>`+
-    cs.map(c=>`<button class="chip ${filtClasse===c?"on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  const facets=[["classe","Classe"],["labo","Labo"],["delegue","Délégué"]];
+  const key = filtFacet==="labo" ? "labo" : filtFacet==="delegue" ? "delegue" : "classe";
+  const vals=[...new Set(ALL.map(p=>p[key]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fr"));
+  const facetRow=`<div class="pills" style="margin-bottom:2px">`+facets.map(([v,l])=>`<button class="pill ${filtFacet===v?"on":""}" data-facet="${v}">${l}</button>`).join("")+`</div>`;
+  const chipRow=`<button class="chip ${filtClasse?"":"on"}" data-c="">Tous (${ALL.length})</button>`+
+    vals.map(c=>`<button class="chip ${filtClasse===c?"on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  $("chipClasses").innerHTML=facetRow+chipRow;
+  $("chipClasses").querySelectorAll("[data-facet]").forEach(b=>b.onclick=()=>{filtFacet=b.dataset.facet;filtClasse="";renderChips();renderListe();});
   $("chipClasses").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{filtClasse=b.dataset.c;renderChips();renderListe();});
 }
 function renderLists(){
