@@ -376,10 +376,11 @@ td.n{font-weight:700}
     <div class="tstep"><div class="n">3</div><div><b>Ça se remplit tout seul</b><p>Dès que vous tapez un délégué déjà connu, son laboratoire et son téléphone s'ajoutent automatiquement. Idem pour les pharmacies déjà saisies.</p></div></div>
     <div class="tstep"><div class="n">4</div><div><b>Plusieurs présentations</b><p>Un même produit peut avoir plusieurs formes/dosages (comprimé, sirop…). Ajoutez-les avec « + Ajouter une présentation ».</p></div></div>
     <div class="tstep"><div class="n">5</div><div><b>Priorité et motif</b><p>Mettez des étoiles et surtout écrivez pourquoi ce produit mérite d'être prescrit : efficacité, tolérance, prix, disponibilité.</p></div></div>
-    <div class="tstep"><div class="n">6</div><div><b>Tracez les gestes reçus</b><p>Échantillons, cadeau, repas, invitation… notez-les dès la visite, avec leur valeur. Ils apparaissent dans la frise de la fiche.</p></div></div>
-    <div class="tstep"><div class="n">7</div><div><b>Prescrivez en un appui</b><p>À chaque prescription, appuyez sur ℞+1 sur la carte du produit. Le compteur et la date se mettent à jour seuls.</p></div></div>
-    <div class="tstep"><div class="n">8</div><div><b>Comparez et arbitrez</b><p>L'onglet Comparer classe les produits d'une même classe par priorité puis prix. Le Bilan met face à face gestes reçus et prescriptions par labo.</p></div></div>
-    <div class="tstep"><div class="n">9</div><div><b>Sauvegardez</b><p>Dans les réglages (☰), exportez régulièrement un fichier .json. Vos données restent sur ce téléphone, hors ligne.</p></div></div>
+    <div class="tstep"><div class="n">6</div><div><b>Tracez les gestes reçus</b><p>Échantillons, cadeau, repas, invitation… notez-les dès la visite, avec leur valeur. Chaque geste est rattaché au délégué : il apparaît sur tous ses produits, même les nouveaux.</p></div></div>
+    <div class="tstep"><div class="n">7</div><div><b>Retrouvez vite un produit</b><p>Utilisez la recherche, le tri, et le filtre par <b>Classe thérapeutique</b> ou <b>Laboratoire</b> (deux listes déroulantes en haut de l'écran Produits).</p></div></div>
+    <div class="tstep"><div class="n">8</div><div><b>Prescrivez en un appui</b><p>À chaque prescription, appuyez sur ℞+1 sur la carte du produit. Le compteur et la date se mettent à jour seuls.</p></div></div>
+    <div class="tstep"><div class="n">9</div><div><b>Comparez et arbitrez</b><p>L'onglet Comparer classe les produits d'une même classe par priorité puis prix. Le Bilan met face à face gestes reçus et prescriptions par labo.</p></div></div>
+    <div class="tstep"><div class="n">10</div><div><b>Sauvegardez</b><p>Dans les réglages (☰), exportez régulièrement un fichier .json. Vos données restent sur ce téléphone, hors ligne.</p></div></div>
     <div class="alert" style="margin-top:6px"><b>Le cœur : rester honnête</b>Si un produit est prioritaire, qu'on vous a fait des cadeaux, mais qu'aucun motif clinique n'est noté, VisiteMed vous alerte. Notez toujours pourquoi vous priorisez.</div>
     <button class="btn" id="tutoOk">J'ai compris</button>
   </div>
@@ -755,15 +756,23 @@ function render(){
   else renderData();
 }
 function renderChips(){
-  const facets=[["classe","Classe"],["labo","Labo"],["delegue","Délégué"]];
   const key = filtFacet==="labo" ? "labo" : filtFacet==="delegue" ? "delegue" : "classe";
+  const label = filtFacet==="labo" ? "laboratoire" : filtFacet==="delegue" ? "délégué" : "classe";
   const vals=[...new Set(ALL.map(p=>p[key]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fr"));
-  const facetRow=`<div class="pills" style="margin-bottom:2px">`+facets.map(([v,l])=>`<button class="pill ${filtFacet===v?"on":""}" data-facet="${v}">${l}</button>`).join("")+`</div>`;
-  const chipRow=`<button class="chip ${filtClasse?"":"on"}" data-c="">Tous (${ALL.length})</button>`+
-    vals.map(c=>`<button class="chip ${filtClasse===c?"on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
-  $("chipClasses").innerHTML=facetRow+chipRow;
-  $("chipClasses").querySelectorAll("[data-facet]").forEach(b=>b.onclick=()=>{filtFacet=b.dataset.facet;filtClasse="";renderChips();renderListe();});
-  $("chipClasses").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{filtClasse=b.dataset.c;renderChips();renderListe();});
+  const opts=`<option value="">${filtFacet==="classe"?"Toutes les classes thérapeutiques":filtFacet==="delegue"?"Tous les délégués":"Tous les laboratoires"} (${ALL.length})</option>`+
+    vals.map(c=>`<option value="${esc(c)}"${filtClasse===c?" selected":""}>${esc(c)}</option>`).join("");
+  const caret="url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B0A69D' stroke-width='2.4' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>\")";
+  const selBase=`appearance:none;-webkit-appearance:none;background-color:#fff;background-image:${caret};background-repeat:no-repeat;background-position:right 11px center;border:1px solid var(--line);border-radius:12px;padding:11px 30px 11px 13px;font-size:13px;font-weight:600;color:var(--ink);box-shadow:0 1px 2px rgba(30,26,23,.04)`;
+  const active = !!filtClasse;
+  $("chipClasses").innerHTML=`<div style="display:flex;gap:8px;padding:10px 14px 4px">
+      <select id="facetSel" style="${selBase};flex:0 0 33%;color:var(--ink-2)">
+        <option value="classe"${filtFacet==="classe"?" selected":""}>Classe</option>
+        <option value="labo"${filtFacet==="labo"?" selected":""}>Labo</option>
+      </select>
+      <select id="valSel" style="${selBase};flex:1;min-width:0${active?`;background-color:#FDEBE0;border-color:#F7CBB0;color:var(--or2);font-weight:700`:``}">${opts}</select>
+    </div>`;
+  $("facetSel").onchange=e=>{filtFacet=e.target.value;filtClasse="";renderChips();renderListe();};
+  $("valSel").onchange=e=>{filtClasse=e.target.value;renderListe();};
 }
 function renderLists(){
   $("dlLabo").innerHTML=[...new Set(ALL.map(p=>p.labo).filter(Boolean))].map(v=>`<option value="${esc(v)}">`).join("");
